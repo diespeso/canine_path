@@ -1,0 +1,146 @@
+<link rel="stylesheet" href="/css/perfil_perro.css" >
+
+<script>
+    //selecting the color for the availability banner
+    document.title = "{{perfil.perro_name}}";
+    var status = "{{perfil.availability}}";
+    var color = "#555555";
+
+    const CLR_AVA = "#7febaf";
+    const CLR_ADO = "#8abded";
+    const CLR_NOD = "#c2c5d1";
+    switch(status) {
+        case 'ADOPTABLE':
+            color = CLR_AVA;
+            break;
+        case 'ADOPTADO':
+            color = CLR_ADO;
+            break;
+        case 'NO DISPONIBLE':
+            color = CLR_NOD;
+            break;
+        default:
+            color = "black";
+    }
+
+    window.onload = function() {
+        //set availability tag color
+        document.getElementById("availability-card").style.backgroundColor = color;
+
+        //check if there are valid images for refugio
+        if(document.getElementById("refugio_logo").naturalHeight == 0) {
+            //failed to load
+            document.getElementById("refugio_logo").src = "/img/refugio_profiles/not_found.jpg";
+        }
+
+        //check if there are valid images for dog
+        if(document.getElementById("foto").naturalHeight == 0) {
+            //failed to load
+            document.getElementById("foto").src = "/img/dog_profiles/not_found.jpg";
+        }
+    };     
+</script>
+
+<div class="cont_perfil_perro">
+    <!-- first col-->
+    <div class="cont_status">
+        <div class="cont_foto">
+            <img id="foto" src="/img/dog_profiles/{{perfil.perro_id}}.jpg">
+        </div>
+        <div class="cont_status_adopcion">
+            <h2 id="availability-card">{{perfil.availability}}</h2>
+        </div>
+        <a class="link_adoptar" href="#">
+            <div class="cont_adoptar">Adoptar</div>
+        </a>
+    </div>
+    <!-- second col-->
+    <div class="cont_datos">
+        <div class="cont_nombre">
+            <h2>{{perfil.perro_name}}</h2>
+        </div>
+        <div class="cont_cards_datos">
+            <div id="card_general" class="cont_card"> 
+                general
+                <table>
+                    <tr>
+                        <td>raza</td>
+                        <td>{{perfil.race}}</td>
+                    </tr>
+                    <tr>
+                        <td>tamaño</td>
+                        <td>{{perfil.size}}m</td>
+                    </tr>
+                    <tr>
+                        <td>peso</td>
+                        <td>{{perfil.weight}}kg</td>
+                    </tr>
+                    <tr>
+                        <td>sexo</td>
+                        <td>{{perfil.sex}}</td>
+                    </tr>
+                    <tr>
+                        <td>edad</td>
+                        <td>{{perfil.age}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="card_salud" class="cont_card">
+                salud
+                <table>
+                    <tr>
+                        <td>Esterilizado</td>
+                        <td>{{perfil.health.neutered}}</td>
+                    </tr>
+                    <tr>
+                        <td>Desparasitado</td>
+                        <td>{{perfil.health.dewormed}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="personalidad" class="cont_card">
+                personalidad <!-- maybe use icons for this enum -->
+                <table>
+                    <tr>
+                        <td>Otros perros</td>
+                        <td>{{perfil.personality.dogs}}</td>
+                    </tr>
+                    <tr>
+                        <td>Otras mascotas</td>
+                        <td>{{perfil.personality.pets}}</td>
+                    </tr>
+                    <tr>
+                        <td>Niños</td>
+                        <td>{{perfil.personality.kids}}</td>
+                    </tr>
+                    <tr>
+                        <td>Ruidoso</td>
+                        <td>{{perfil.personality.noise}}</td>
+                    </tr>
+                    <tr>
+                        <td>Travieso</td>
+                        <td>{{perfil.personality.naughty}}</td>
+                    </tr>
+                    <tr>
+                        <td>Actividad</td>
+                        <td>{{perfil.personality.activity}}</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="historia" class="cont_card">
+                historia
+                <p>{{perfil.notes}}</p>
+            </div>
+        </div>
+    </div>
+    <!-- third col--> <!-- por ahora las img de los logos deben ser jpg -->
+    <div class="cont_refugio">
+        <div class="pest_refugio">
+            <img id="refugio_logo" class="refugio_logo" src="/img/refugio_profiles/{{refugio.id}}.jpg">
+            <h2 id="nombre_refugio">{{refugio.name}}</h2>
+            <p>{{refugio.address}}</p>
+            <p>{{refugio.city}}, {{refugio.country}}</p>
+            <a class="link_visitar_refugio" href="/refugio/{{refugio.id}}"><div class="btn_visitar_refugio">Ver perfil</div></a>
+        </div>
+    </div>
+</div>

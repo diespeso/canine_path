@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="/css/buscador_perros.css">
+
+<script>
+
+    window.onload = function() {
+        var col = document.getElementsByClassName("dog_pic");
+        for(let dog_pic of col) {
+            if(dog_pic.naturalHeight == 0) {
+                dog_pic.src = "/img/dog_profiles/not_found.jpg";
+            }
+        }
+    };
+</script>
+<div class="search_sidebar">
+            <form method="POST" action="perros">
+                <label>Tamaño</label>
+                <input type="text" id="fsize" name="fsize" value="{{contenido.old.fsize}}"><br>
+            
+                <input type="submit" value="Olfatear">
+            </form>
+</div> 
+<div class="dogs_grid_container container">
+    {{{contenido.perritos}}}
+</div>
+

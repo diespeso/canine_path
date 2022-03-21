@@ -1,0 +1,59 @@
+<link rel="stylesheet" href="/css/perfil_refugio.css">
+
+<script>
+    document.title = "{{refugio.name}}";
+    window.onload = function() {
+        var logo = document.getElementById("logo");
+        if(logo.naturalHeight == 0) {
+            logo.src = "/img/refugio_profiles/not_found.jpg";
+        }
+
+        var col = document.getElementsByClassName("dog_pic");
+        for(let dog_pic of col) {
+            if(dog_pic.naturalHeight == 0) {
+                dog_pic.src = "/img/dog_profiles/not_found.jpg";
+            }
+        }
+    };
+
+</script>
+<div class="cont_banner">
+    <div class="perfil_info_banner">
+        <div class="cont_logo">
+            <img id="logo" src="/img/refugio_profiles/{{refugio.id}}.jpg">
+        </div>
+        
+        <div class="cont_datos">
+            <h2>{{refugio.name}}</h2>
+            <h3>{{refugio.address}}</h3>
+            <h3>{{refugio.city}}</h3>
+            <h3>{{refugio.country}}</h3>
+
+            <br>
+
+            <div class="cont_perros_adopcion">
+                <h3>Perros en adopción: </h3>
+                <h3 id="perros_adopcion">{{resumen.adoptables}}</h3>
+            </div>
+
+            <div class="cont_perros_adoptados">
+                <h3>Perros adoptados: </h3>
+                <h3 id="perros_adoptados">{{resumen.adoptados}}</h3>
+            </div>
+
+            <br>
+
+            <h3 id="lbl_contacto">Contacto:</h3>
+            <h3 id="contacto">{{refugio.phone}}</h3>
+        </div>
+        <div class="cont_acerca">
+            <h3 id="lbl_acerca">Acerca de nosotros</h3>
+            <p id="acerca">{{refugio.description}}</p>
+        </div> 
+    </div>
+</div>
+
+
+<div class="cont_perros">
+    {{{perritos}}}
+</div>  

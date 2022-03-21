@@ -1,0 +1,30 @@
+.carrousel {
+    width: 100%;
+    height: 480px;
+    background-color: aquamarine;
+}
+
+.login_zone {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.login {
+    padding: 20%;
+    text-align: center;
+    margin: 5%;
+    padding-top: 5%;
+    box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.2)
+}
+
+.btn_login {
+    margin-top: 5%;
+}
+
+#login_refugio {
+    background-color: antiquewhite;
+}
+
+#login_usuario {
+    background-color: bisque;
+}
