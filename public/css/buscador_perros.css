@@ -9,6 +9,14 @@
     position: fixed; /*TODO: MAKE IT NOT FIXED, CHECK BOOTSTRAP SIDEBARS*/
 }
 
+#lbl_personality {
+    padding-top: 20px;
+}
+
+#div_personality {
+    background-color: greenyellow;
+}
+
 .dogs_grid_container {
     background: grey;
     left: 20%;

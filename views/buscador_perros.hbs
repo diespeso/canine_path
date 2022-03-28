@@ -12,13 +12,43 @@
     };
 </script>
 <div class="search_sidebar">
-            <form method="POST" action="perros">
-                <label>Tamaño</label>
-                <input type="text" id="fsize" name="fsize" value="{{contenido.old.fsize}}"><br>
-            
-                <input type="submit" value="Olfatear">
-            </form>
-</div> 
+    <form method="POST" action="perros">
+        <label>Sexo</label>
+        <select id="f_sexo" name="f_sexo">
+            <option value="MACHO">Macho</option>
+            <option value="HEMBRA">Hembra</option>
+            <option value="na" selected="selected">No importa</option>
+        </select>
+        <br>
+        <label>Tamaño</label>
+        <select id="f_tamano" name="f_tamano">
+            <option value="S">Pequeño</option>
+            <option value="M">Mediano</option>
+            <option value="G">Grande</option>
+            <option value="na" selected="selected">No importa</option>
+        </select>
+        <br>
+        <label>Raza</label>
+        <select id="f_raza" name="f_raza">
+            {{{contenido.forma}}}
+            <option value="na" selected="selected">No importa</option>
+        </select>
+        <br>
+        <label id="lbl_personality">Personalidad</label>
+        <div id="div_personality">
+            <label>Energía</label>
+            <select id="f_p_actividad" name="f_p_actividad">
+                <option value="muy_activo">Muy activo</option>
+                <option value="regular">Regular</option>
+                <option value="perezoso">Perezoso</option>
+                <option value="na" selected="selected">No importa</option>
+            </select>
+            <br>
+        </div>
+        <input type="submit" value="Olfatear">
+        
+    </form>
+</div>
 <div class="dogs_grid_container container">
     {{{contenido.perritos}}}
 </div>

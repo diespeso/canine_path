@@ -10,8 +10,11 @@
         <!--data object sera un objeto de query -->
         <div class="search_sidebar">
             <form method="GET" action="/api/perros">
-                <label>Tamaño</label>
-                <input type="text" id="fsize" name="fsize"><br>
+                <label>Sexo</label>
+                <select id="f_sexo" name="f_sexo">
+                    <option value="macho">Macho</option>
+                    <option value="hembra">Hembra</option>
+                </select>
             
                 <input type="submit" value="Olfatear">
             </form>
