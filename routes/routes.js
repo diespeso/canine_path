@@ -7,13 +7,18 @@ const router = express.Router();
 var mysql = require('mysql');
 const { append } = require('express/lib/response');
 
+const bcrypt = require('bcrypt');
+
+const salt_rounds = 10;
+
 module.exports = router;
 
 const config = require('../config');
 const { createConnection } = require('net');
 const { format } = require('path');
 
-router.get('/buscador_perros', (req, res) => { 
+router.get('/buscador_perros', (req, res) => {
+    console.log(req.cookies);
     var con = mysql.createConnection(config.db_con);
     con.connect();
     con.query('USE canine_path;')
@@ -44,6 +49,53 @@ router.get('/buscador_perros', (req, res) => {
 
 router.get('/', (req, res) => {
     res.render('main', {})
+})
+
+router.post('/login_refugio', (req, res) => {
+    console.log(req.body)
+    var usr = req.body.refugio_usr;
+    var pass = req.body.refugio_contra;
+    const con = mysql.createConnection(config.db_con);
+    con.connect();
+    con.query('use canine_path');
+    con.query(`SELECT * FROM refugio_creds WHERE ref_username = '${usr}';`,
+        (err, rows, fields) => {
+        if(err) throw err;
+        if(rows.length == 0) { //didnt find username
+            return res.status(200).send({status: 1, message: "usuario invalido"}); //TODO: MEJORAR EL MENSAJE DE USUARIO NO ENCONTRADO
+        }
+        console.log(rows);
+        //check password
+        bcrypt.compare(pass, rows[0].ref_pass, (err, result) => {
+            if(err) throw err;
+            if(result) { //right password
+                //req.session.user = rows[0].ref_username;
+                res.cookie('username', rows[0].ref_username);
+                return res.render('perfil_interno_refugio', {
+                    user:
+                        {name: rows[0].ref_username,
+                        contra: rows[0].ref_pass}})
+            }
+            return res.status(200).send({status: 2, message: "Contrasenia incorrecta"})
+        })
+    })
+    /*bcrypt.genSalt(salt_rounds, (err, salt) => {
+        bcrypt.hash(pass, salt, (err, hash) => {
+            console.log(hash);
+        })
+    })*/
+    //res.render("perfil_interno_refugio", {})
+})
+
+router.post('/signin_refugio', (req, res) => {
+
+})
+
+
+router.get('/logout_refugio', (req, res) => {
+    console.log(req.session);
+    req.session.destroy();
+    res.send("ok, afuera")
 })
 
 router.get('/perros', (req, res) => {
