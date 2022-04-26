@@ -2,6 +2,17 @@
 
 <script>
 
+    function set_option(option_id, selected) {
+        var selection = document.getElementById(option_id);
+
+        for(var i in Array.apply(null, selection.options)) {
+            if(selection.options[i].value == selected) {
+                selection.options[i].selected = true;
+                return
+            }
+        }
+    }
+
     window.onload = function() {
         var col = document.getElementsByClassName("dog_pic");
         for(let dog_pic of col) {
@@ -9,9 +20,18 @@
                 dog_pic.src = "/img/dog_profiles/not_found.jpg";
             }
         }
+        
+        set_option('f_sexo', '{{contenido.old.f_sexo}}')
+        set_option('f_tamano', '{{contenido.old.f_tamano}}')
+        set_option('f_raza', '{{contenido.old.f_raza}}')
+
+        set_option('f_p_actividad', '{{contenido.old.f_p_actividad}}');
+        set_option('f_p_ruido', '{{contenido.old.f_p_ruido}}');
     };
 </script>
+
 <div class="search_sidebar">
+    {{contenido.old}}
     <form method="POST" action="perros">
         <label>Sexo</label>
         <select id="f_sexo" name="f_sexo">
@@ -38,12 +58,21 @@
         <div id="div_personality">
             <label>Energía</label>
             <select id="f_p_actividad" name="f_p_actividad">
-                <option value="muy_activo">Muy activo</option>
-                <option value="regular">Regular</option>
-                <option value="perezoso">Perezoso</option>
+                <option value="MUY ACTIVO">Muy activo</option>
+                <option value="REGULAR">Regular</option>
+                <option value="PEREZOSO">Perezoso</option>
                 <option value="na" selected="selected">No importa</option>
             </select>
             <br>
+            <label>Ruido</label>
+            <select id="f_p_ruido" name="f_p_ruido">
+                <option value="POCO">Poco</option>
+                <option value="REGULAR">Regular</option>
+                <option value="MUCHO">Mucho</option>
+                <option value="DESCONOCIDO">Desconocido</option>
+                <option value="na" selected="selected">No importa</option>
+
+            </select>
         </div>
         <input type="submit" value="Olfatear">
         

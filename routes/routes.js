@@ -225,6 +225,24 @@ router.post('/perros', (req, res) => {
         count++;
     }
 
+    if(forma.f_p_actividad != 'na') {
+        if(count > 0) {
+            query += ` and personality.activity = '${forma.f_p_actividad}' `
+        } else {
+            query += ` where personality.activity = '${forma.f_p_actividad}' `
+        }
+        count++
+    }
+
+    if(forma.f_p_ruido != 'na') {
+        if(count > 0) {
+            query += ` and personality.noise = '${forma.f_p_ruido}' `
+        } else {
+            query += ` where personality.noise = '${forma.f_p_ruido}' `
+        }
+        count++
+    }
+
 
     //TODO: AGREGAR BUSQUEDAS POR ASPECTOS DE PERSONALIDAD
 
