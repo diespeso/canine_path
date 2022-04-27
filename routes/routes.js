@@ -87,8 +87,57 @@ router.post('/login_refugio', (req, res) => {
     //res.render("perfil_interno_refugio", {})
 })
 
-router.post('/signin_refugio', (req, res) => {
+router.get('/signin_refugio', (req, res) => {
+    res.render('signin_refugio')
+})
 
+router.post('/signin_refugio', (req, res) => {
+    const con = mysql.createConnection(config.db_con);
+    con.connect()
+    con.query('use canine_path')
+    bcrypt.genSalt(salt_rounds, function(err, salt) {
+        bcrypt.hash(req.body.pass, salt, function(err, hash) {
+            var query = `INSERT INTO refugio(
+                username, name, address, city,
+                country, phone, description
+            ) VALUES (
+                "${req.body.username}",
+                "${req.body.nombre}",
+                "${req.body.direccion}",
+                "${req.body.ciudad}",
+                "${req.body.pais}",
+                "${req.body.telefono}",
+                "${req.body.descripcion}"
+            );`
+
+            console.log(`query: ${query}`)
+            con.query(query, (err, rows, fields) => {
+                if(err) {
+                    console.log(`error al signin: ${err}`)
+                    return res.status(500)
+                }
+
+                console.log(rows)
+            })
+            
+            var query2 = `INSERT INTO refugio_creds VALUES(
+                "${req.body.username}", "${hash}"
+            )`
+            console.log(`query de credenciales: ${query2}`)
+
+            con.query(query2, (err, rows, fields) => {
+                if(err) {
+                    console.log(`error al signin con contra: ${err}`)
+                    return res.status(500)
+                }
+            })
+
+            res.send({message: 'ok'})
+                    
+        })
+    })
+    
+    
 })
 
 
