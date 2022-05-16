@@ -48,7 +48,11 @@ router.get('/buscador_perros', (req, res) => {
 })
 
 router.get('/', (req, res) => {
-    res.render('main', {})
+    if(req.session.username) {
+        console.log(`cookie says: ${req.session.username}, ${req.session.user_type}`)
+        return res.redirect('buscador_perros') //TODO: enviar a un lado u otro dependiendo tipo de user
+    }
+    return res.render('main', {})
 })
 
 router.post('/login_refugio', (req, res) => {
@@ -69,8 +73,9 @@ router.post('/login_refugio', (req, res) => {
         bcrypt.compare(pass, rows[0].ref_pass, (err, result) => {
             if(err) throw err;
             if(result) { //right password
-                //req.session.user = rows[0].ref_username;
-                res.cookie('username', rows[0].ref_username);
+                req.session.username = rows[0].ref_username;
+                req.session.user_type = 'refugio'
+                //res.cookie('username', rows[0].ref_username);
                 return res.render('perfil_interno_refugio', {
                     user:
                         {name: rows[0].ref_username,
@@ -140,11 +145,90 @@ router.post('/signin_refugio', (req, res) => {
     
 })
 
-
-router.get('/logout_refugio', (req, res) => {
+router.get('/logout', (req, res) => {
     console.log(req.session);
     req.session.destroy();
     res.send("ok, afuera")
+})
+
+router.get('/signin_usuario', (req, res) => {
+    res.render('signin_usuario')
+})
+
+router.post('/signin_usuario', (req, res) => {
+    const con = mysql.createConnection(config.db_con);
+    con.connect()
+    con.query('use canine_path;')
+
+    var query;
+
+    bcrypt.genSalt(salt_rounds, (err, salt) => {
+        bcrypt.hash(req.body.pass, salt, (err, hash) => {
+            console.log(`pass: ${req.body.pass}`)
+            console.log(`hash es: ${hash}`)
+            query = `INSERT INTO usuario(username, pass, nombres,
+                apellido_pat, apellido_mat, mail,
+                telefono, ciudad, pais) values(
+                    "${req.body.username}",
+                    "${hash}",
+                    "${req.body.nombres}",
+                    "${req.body.apellido_pat}",
+                    "${req.body.apellido_mat}",
+                    "${req.body.mail}",
+                    "${req.body.telefono}",
+                    "${req.body.ciudad}",
+                    "${req.body.pais}"
+                );`
+
+            //aplicar query
+            con.query(query, (err, rows, fields) => {
+                if(err) {
+                    console.log(`error con sign in de usuario: ${err}`)
+                    return res.status(500)
+                }
+
+                console.log(rows)
+            })
+            //return res.send({message: query}).status(200);
+            //guardar cookie
+
+            //llevar a pantalla principal, si es usuario a woofear
+            return res.redirect('buscador_perros')
+        })
+    })
+})
+
+router.post('/login_usuario', (req, res) => {
+    console.log(req.body)
+    var usr = req.body.usuario_usr
+    var pass = req.body.usuario_contra
+
+    const con = mysql.createConnection(config.db_con)
+    con.connect()
+    con.query('use canine_path;')
+    con.query(`SELECT * FROM usuario WHERE username = '${usr}';`,
+    (err, rows, fields) => {
+        if(err) {
+            console.log(`error al hacer login en usuario: ${err}`)
+            return res.status(500)
+        }
+        if(rows.length == 0) {
+            console.log('login usuario no encontrado')
+            return res.status(400)
+        }
+        console.log(rows);
+
+        bcrypt.compare(pass, rows[0].pass, (err, result) => {
+            if(err) {
+                return res.status(500).send({message: `error al comparar contras: ${err}`})
+            }
+            if(result) {
+                req.session.username = rows[0].username
+                req.session.user_type = 'usuario'
+                return res.status(200).redirect('buscador_perros')
+            }
+        })
+    })
 })
 
 router.get('/perros', (req, res) => {
