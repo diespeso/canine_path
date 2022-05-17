@@ -4,12 +4,25 @@ const express = require('express')
 
 const hbs = require('express-handlebars')
 
+const cookie_parser = require('cookie-parser')
+
+const sessions = require('express-session')
+
 const app = express()
 
 var mysql = require('mysql');
 
+const maxAge = 1000 * 60 * 60 * 24;
+
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
+app.use(sessions({
+    secret: 'thisisasecret',
+    saveUninitialized: true,
+    cookie: {maxAge: maxAge},
+    resave: false
+}))
+app.use(cookie_parser())
 
 //app.use(express.static('public'))
 //app.use(express.static('public'))

@@ -7,13 +7,18 @@ const router = express.Router();
 var mysql = require('mysql');
 const { append } = require('express/lib/response');
 
+const bcrypt = require('bcrypt');
+
+const salt_rounds = 10;
+
 module.exports = router;
 
 const config = require('../config');
 const { createConnection } = require('net');
 const { format } = require('path');
 
-router.get('/buscador_perros', (req, res) => { 
+router.get('/buscador_perros', (req, res) => {
+    console.log(req.cookies);
     var con = mysql.createConnection(config.db_con);
     con.connect();
     con.query('USE canine_path;')
@@ -43,7 +48,261 @@ router.get('/buscador_perros', (req, res) => {
 })
 
 router.get('/', (req, res) => {
-    res.render('main', {})
+    if(req.session.username) {
+        console.log(`cookie says: ${req.session.username}, ${req.session.user_type}`)
+        return res.redirect('buscador_perros') //TODO: enviar a un lado u otro dependiendo tipo de user
+    }
+    return res.render('main', {})
+})
+
+router.post('/login_refugio', (req, res) => {
+    console.log(req.body)
+    var usr = req.body.refugio_usr;
+    var pass = req.body.refugio_contra;
+    const con = mysql.createConnection(config.db_con);
+    con.connect();
+    con.query('use canine_path');
+    con.query(`SELECT * FROM refugio_creds WHERE ref_username = '${usr}';`,
+        (err, rows, fields) => {
+        if(err) throw err;
+        if(rows.length == 0) { //didnt find username
+            return res.status(200).send({status: 1, message: "usuario invalido"}); //TODO: MEJORAR EL MENSAJE DE USUARIO NO ENCONTRADO
+        }
+        console.log(rows);
+        //check password
+        bcrypt.compare(pass, rows[0].ref_pass, (err, result) => {
+            if(err) throw err;
+            if(result) { //right password
+                req.session.username = rows[0].ref_username;
+                req.session.user_type = 'refugio'
+                //res.cookie('username', rows[0].ref_username);
+                return res.render('perfil_interno_refugio', {
+                    user:
+                        {name: rows[0].ref_username,
+                        contra: rows[0].ref_pass}})
+            }
+            return res.status(200).send({status: 2, message: "Contrasenia incorrecta"})
+        })
+    })
+    /*bcrypt.genSalt(salt_rounds, (err, salt) => {
+        bcrypt.hash(pass, salt, (err, hash) => {
+            console.log(hash);
+        })
+    })*/
+    //res.render("perfil_interno_refugio", {})
+})
+
+router.get('/signin_refugio', (req, res) => {
+    res.render('signin_refugio')
+})
+
+router.post('/signin_refugio', (req, res) => {
+    const con = mysql.createConnection(config.db_con);
+    con.connect()
+    con.query('use canine_path')
+    bcrypt.genSalt(salt_rounds, function(err, salt) {
+        bcrypt.hash(req.body.pass, salt, function(err, hash) {
+            var query = `INSERT INTO refugio(
+                username, name, address, city,
+                country, phone, description
+            ) VALUES (
+                "${req.body.username}",
+                "${req.body.nombre}",
+                "${req.body.direccion}",
+                "${req.body.ciudad}",
+                "${req.body.pais}",
+                "${req.body.telefono}",
+                "${req.body.descripcion}"
+            );`
+
+            console.log(`query: ${query}`)
+            con.query(query, (err, rows, fields) => {
+                if(err) {
+                    console.log(`error al signin: ${err}`)
+                    return res.status(500)
+                }
+
+                console.log(rows)
+            })
+            
+            var query2 = `INSERT INTO refugio_creds VALUES(
+                "${req.body.username}", "${hash}"
+            )`
+            console.log(`query de credenciales: ${query2}`)
+
+            con.query(query2, (err, rows, fields) => {
+                if(err) {
+                    console.log(`error al signin con contra: ${err}`)
+                    return res.status(500)
+                }
+            })
+
+            res.send({message: 'ok'})
+                    
+        })
+    })
+    
+    
+})
+
+router.get('/logout', (req, res) => {
+    console.log(req.session);
+    req.session.destroy();
+    res.send("ok, afuera")
+})
+
+router.get('/signin_usuario', (req, res) => {
+    res.render('signin_usuario')
+})
+
+router.post('/signin_usuario', (req, res) => {
+    const con = mysql.createConnection(config.db_con);
+    con.connect()
+    con.query('use canine_path;')
+
+    var query;
+
+    bcrypt.genSalt(salt_rounds, (err, salt) => {
+        bcrypt.hash(req.body.pass, salt, (err, hash) => {
+            console.log(`pass: ${req.body.pass}`)
+            console.log(`hash es: ${hash}`)
+            query = `INSERT INTO usuario(username, pass, nombres,
+                apellido_pat, apellido_mat, mail,
+                telefono, ciudad, pais) values(
+                    "${req.body.username}",
+                    "${hash}",
+                    "${req.body.nombres}",
+                    "${req.body.apellido_pat}",
+                    "${req.body.apellido_mat}",
+                    "${req.body.mail}",
+                    "${req.body.telefono}",
+                    "${req.body.ciudad}",
+                    "${req.body.pais}"
+                );`
+
+            //aplicar query
+            con.query(query, (err, rows, fields) => {
+                if(err) {
+                    console.log(`error con sign in de usuario: ${err}`)
+                    return res.status(500)
+                }
+
+                console.log(rows)
+            })
+            //return res.send({message: query}).status(200);
+            //guardar cookie
+
+            //llevar a pantalla principal, si es usuario a woofear
+            return res.redirect('buscador_perros')
+        })
+    })
+})
+
+router.post('/login_usuario', (req, res) => {
+    console.log(req.body)
+    var usr = req.body.usuario_usr
+    var pass = req.body.usuario_contra
+
+    const con = mysql.createConnection(config.db_con)
+    con.connect()
+    con.query('use canine_path;')
+    con.query(`SELECT * FROM usuario WHERE username = '${usr}';`,
+    (err, rows, fields) => {
+        if(err) {
+            console.log(`error al hacer login en usuario: ${err}`)
+            return res.status(500)
+        }
+        if(rows.length == 0) {
+            console.log('login usuario no encontrado')
+            return res.status(400)
+        }
+        console.log(rows);
+
+        bcrypt.compare(pass, rows[0].pass, (err, result) => {
+            if(err) {
+                return res.status(500).send({message: `error al comparar contras: ${err}`})
+            }
+            if(result) {
+                req.session.username = rows[0].username
+                req.session.user_type = 'usuario'
+                return res.status(200).redirect('buscador_perros')
+            }
+        })
+    })
+})
+
+router.get('/perfil', (req, res) => {
+    if(req.session.user_type == 'refugio') {
+        console.log('sirviendo a refugio edit')
+        var con = mysql.createConnection(config.db_con)
+        con.query('use canine_path;')
+        con.query(`SELECT id FROM refugio WHERE refugio.username = '${req.session.username}'`, (err, rows, fields) => {
+            console.log(rows[0].id)
+            var id = rows[0].id
+
+            var q = `SELECT COUNT(IF(availability = 'ADOPTABLE', 1, NULL)) 'adoptables',
+            COUNT(IF(availability = 'ADOPTADO', 1, NULL)) 'adoptados',
+            COUNT(IF(availability = 'NO DISPONIBLE', 1, NULL)) 'no_disponibles'
+            FROM perro
+            WHERE perro.id_refugio = ${id};
+            
+            SELECT * FROM perro WHERE id_refugio = ${id};
+            
+            SELECT * FROM refugio WHERE id = ${id};`
+
+            con.query(q, (err, results, fields) => {
+                console.log(`results: ${JSON.stringify(results)}`)
+                var resumen = results[0];
+                var perros = results[1];
+
+                var perritos = "";
+                for(var i = 0; i < perros.length; i++) {
+                    perritos += `<a href="../perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
+                    <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+                    <h1>${perros[i].name}</h1>
+                </div></a>`;
+                }
+                console.log(`resumen: ${JSON.stringify(results[0])}`)
+                return res.render('perfil_refugio_edit', {
+                    resumen: resumen[0],
+                    refugio: results[2][0],
+                    perritos: perritos
+                })
+            })
+        })
+        //return res.render('perfil_refugio_edit')
+    } else {
+
+    }
+    //return res.send({message: req.session.user_type})
+})
+
+router.put('/api/edit/refugio/', (req, res) => {
+    if(req.session.username) {
+        var json = req.body;
+
+        var con = mysql.createConnection(config.db_con)
+        con.connect()
+        con.query('USE canine_path;')
+        var counter = 0;
+        //asumir que esta todo o que se puede dejar en blancos
+        var q = `UPDATE refugio SET
+        name = '${json.refugio_name}',
+        address = '${json.refugio_address}',
+        city = '${json.refugio_city}',
+        country = '${json.refugio_country}',
+        phone = '${json.contacto}',
+        description = '${json.acerca}'
+        WHERE username = '${req.session.username}';`
+        con.query(q, (err, result, rows) => {
+            if(err) return res.status(500).send({message: `fallo al actualizar perfil refugio: ${err}`})
+            return res.status(200).send({message: `actualizado perfil de refugio ${req.session.username}`})
+        })
+
+
+    } else {
+        return res.status(500).send({message: "no session"})
+    }
 })
 
 router.get('/perros', (req, res) => {
@@ -171,6 +430,24 @@ router.post('/perros', (req, res) => {
             query += ` where race = '${forma.f_raza}' `
         }
         count++;
+    }
+
+    if(forma.f_p_actividad != 'na') {
+        if(count > 0) {
+            query += ` and personality.activity = '${forma.f_p_actividad}' `
+        } else {
+            query += ` where personality.activity = '${forma.f_p_actividad}' `
+        }
+        count++
+    }
+
+    if(forma.f_p_ruido != 'na') {
+        if(count > 0) {
+            query += ` and personality.noise = '${forma.f_p_ruido}' `
+        } else {
+            query += ` where personality.noise = '${forma.f_p_ruido}' `
+        }
+        count++
     }
 
 
