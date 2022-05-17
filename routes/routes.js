@@ -231,6 +231,80 @@ router.post('/login_usuario', (req, res) => {
     })
 })
 
+router.get('/perfil', (req, res) => {
+    if(req.session.user_type == 'refugio') {
+        console.log('sirviendo a refugio edit')
+        var con = mysql.createConnection(config.db_con)
+        con.query('use canine_path;')
+        con.query(`SELECT id FROM refugio WHERE refugio.username = '${req.session.username}'`, (err, rows, fields) => {
+            console.log(rows[0].id)
+            var id = rows[0].id
+
+            var q = `SELECT COUNT(IF(availability = 'ADOPTABLE', 1, NULL)) 'adoptables',
+            COUNT(IF(availability = 'ADOPTADO', 1, NULL)) 'adoptados',
+            COUNT(IF(availability = 'NO DISPONIBLE', 1, NULL)) 'no_disponibles'
+            FROM perro
+            WHERE perro.id_refugio = ${id};
+            
+            SELECT * FROM perro WHERE id_refugio = ${id};
+            
+            SELECT * FROM refugio WHERE id = ${id};`
+
+            con.query(q, (err, results, fields) => {
+                console.log(`results: ${JSON.stringify(results)}`)
+                var resumen = results[0];
+                var perros = results[1];
+
+                var perritos = "";
+                for(var i = 0; i < perros.length; i++) {
+                    perritos += `<a href="../perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
+                    <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+                    <h1>${perros[i].name}</h1>
+                </div></a>`;
+                }
+                console.log(`resumen: ${JSON.stringify(results[0])}`)
+                return res.render('perfil_refugio_edit', {
+                    resumen: resumen[0],
+                    refugio: results[2][0],
+                    perritos: perritos
+                })
+            })
+        })
+        //return res.render('perfil_refugio_edit')
+    } else {
+
+    }
+    //return res.send({message: req.session.user_type})
+})
+
+router.put('/api/edit/refugio/', (req, res) => {
+    if(req.session.username) {
+        var json = req.body;
+
+        var con = mysql.createConnection(config.db_con)
+        con.connect()
+        con.query('USE canine_path;')
+        var counter = 0;
+        //asumir que esta todo o que se puede dejar en blancos
+        var q = `UPDATE refugio SET
+        name = '${json.refugio_name}',
+        address = '${json.refugio_address}',
+        city = '${json.refugio_city}',
+        country = '${json.refugio_country}',
+        phone = '${json.contacto}',
+        description = '${json.acerca}'
+        WHERE username = '${req.session.username}';`
+        con.query(q, (err, result, rows) => {
+            if(err) return res.status(500).send({message: `fallo al actualizar perfil refugio: ${err}`})
+            return res.status(200).send({message: `actualizado perfil de refugio ${req.session.username}`})
+        })
+
+
+    } else {
+        return res.status(500).send({message: "no session"})
+    }
+})
+
 router.get('/perros', (req, res) => {
     res.render('buscador_perros', {perritos: req.query})
 })

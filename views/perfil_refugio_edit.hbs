@@ -1,0 +1,185 @@
+<link rel="stylesheet" href="/css/perfil_refugio_edit.css">
+
+<script>
+    document.title = "{{refugio.name}}";
+    window.onload = function() {
+        var logo = document.getElementById("logo");
+        if(logo.naturalHeight == 0) {
+            logo.src = "/img/refugio_profiles/not_found.jpg";
+        }
+
+        var col = document.getElementsByClassName("dog_pic");
+        for(let dog_pic of col) {
+            if(dog_pic.naturalHeight == 0) {
+                dog_pic.src = "/img/dog_profiles/not_found.jpg";
+            }
+        }
+    };
+
+    function editar_perfil() {
+        console.log('editando...')
+    
+        alternar("refugio_name", "refugio_name_edit", "inline-block");
+        relevar_valor("refugio_name", "refugio_name_edit", "text", "value");
+
+        alternar("refugio_address", "refugio_address_edit", "block");
+        relevar_valor("refugio_address", "refugio_address_edit", "text", "value");
+
+        alternar("refugio_city", "refugio_city_edit", "block");
+        relevar_valor("refugio_city", "refugio_city_edit", "text", "value");
+
+        alternar("refugio_country", "refugio_country_edit", "block");
+        relevar_valor("refugio_country", "refugio_country_edit", "text", "value");
+
+        alternar("contacto", "contacto_edit", "block");
+        relevar_valor("contacto", "contacto_edit", "text", "value");
+
+        alternar("acerca", "acerca_edit", "block");
+        relevar_valor("acerca", "acerca_edit", "text", "text");
+
+        alternar("btn_edit_profile", "btn_save_profile", "inline-block");
+    }
+
+    function enviar_perfil() {
+        alternar("refugio_name", "refugio_name_edit", "inline-block");
+        alternar("refugio_address", "refugio_address_edit", "block");
+        alternar("refugio_city", "refugio_city_edit", "block");
+        alternar("refugio_country", "refugio_country_edit", "block");
+        alternar("contacto", "contacto_edit", "block");
+        alternar("acerca", "acerca_edit", "block");
+    
+        alternar("btn_edit_profile", "btn_save_profile", "inline-block");
+
+        //enviar informacion a servidor
+        var xhr = new XMLHttpRequest();
+        xhr.open("PUT", '/api/edit/refugio/', true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        
+        var json = {
+            refugio_name: get_edit_value("refugio_name_edit"),
+            refugio_address: get_edit_value("refugio_address_edit"),
+            refugio_city: get_edit_value("refugio_city_edit"),
+            refugio_country: get_edit_value("refugio_country_edit"),
+            contacto: get_edit_value("contacto_edit"),
+            acerca: get_edit_value("acerca_edit")
+        };
+
+        xhr.send(JSON.stringify(json));
+
+    }
+
+    function get_edit_value(id) {
+        return document.getElementById(id).value;
+    }
+
+    function relevar_valor(id_a, id_b, type_a, type_b) {
+        var temp;
+
+        //texto a fecha
+        if(type_a == "text" && type_b == "date") {
+            temp = document.getElementById(id_a).innerText;
+            var nums = temp.split('/');
+            console.log(`${nums[2]}/${nums[1] - 1}/${nums[0]}`)
+            var date = new Date(`${nums[2]}/${nums[1]}/${nums[0]}`)
+            console.log(date);
+            document.getElementById(id_b).valueAsDate = date;
+            return
+        }
+        //fecha a texto
+        //TODO
+
+        if(type_a == "value") {
+            temp = document.getElementById(id_a).value;
+        } else if(type_a == "date") {
+            temp = document.getElementById(id_a).valueAsDate;
+        } else { //text
+            temp = document.getElementById(id_a).innerText;
+        }
+
+        if(type_b == "value") {
+            document.getElementById(id_b).value = temp;
+        } else if (type_b == "date") {
+            document.getElementById(id_b).valueAsDate = temp; 
+        } else {
+            document.getElementById(id_b).innerText = temp;
+        }
+
+    }
+
+    function alternar(id1, id2, type) {
+
+        console.log(`valores actuales: ${id1}, ${id2}`)
+        var st1 = document.getElementById(id1).style.display;
+        var st2 = document.getElementById(id2).style.display;
+
+        if(st1 == "none" || st1 == "") {
+            document.getElementById(id1).style.display = type;
+        } else {
+            document.getElementById(id1).style.display = "none";
+        }
+
+        if(st2 == "none" || st2 == "") {
+           document.getElementById(id2).style.display = type;
+        } else {
+           document.getElementById(id2).style.display = "none";
+        }
+    }
+
+</script>
+<div class="cont_banner">
+    <div class="perfil_info_banner">
+        <div class="cont_logo">
+            <img id="logo" src="/img/refugio_profiles/{{refugio.id}}.jpg">
+            <div class="btn_edit_profile" style="display: inline-block;">
+                <button id="btn_edit_profile" onclick="editar_perfil();" style="display: inline-block;">editar perfil</button>
+                <button id="btn_save_profile" onclick="enviar_perfil();" style="display: none;">guardar perfil</button>
+            </div>
+        </div>
+        
+        <div class="cont_datos">
+            <h2 id="refugio_name" style="display: inline-block;">{{refugio.name}}</h2>
+            <input type="text" id="refugio_name_edit" style="display: none;">
+            
+            <h3>Dirección:</h3>
+            <h3 id="refugio_address" style="display: block;">{{refugio.address}}</h3>
+            <input type="text" id="refugio_address_edit" style="display: none;">
+            
+            <h3>Ciudad:</h3>
+            <h3 id="refugio_city" style="display: block;">{{refugio.city}}</h3>
+            <input type="text" id="refugio_city_edit" style="display: none;">
+            
+            <h3>País:</h3>
+            <h3 id="refugio_country" style="display: block;">{{refugio.country}}</h3>
+            <input type="text" id="refugio_country_edit" style="display: none;">
+            
+            <br>
+
+            <div class="cont_perros_adopcion">
+                <h3>Perros en adopción: </h3>
+                <h3 id="perros_adopcion">{{resumen.adoptables}}</h3>
+            </div>
+
+            <div class="cont_perros_adoptados">
+                <h3>Perros adoptados: </h3>
+                <h3 id="perros_adoptados">{{resumen.adoptados}}</h3>
+            </div>
+
+            <br>
+
+            <h3 id="lbl_contacto">Contacto:</h3>
+            <h3 id="contacto" style="display: block;">{{refugio.phone}}</h3>
+            <input type="text" id="contacto_edit" style="display: none;">
+        </div>
+        <div class="cont_acerca">
+            <h3 id="lbl_acerca">Acerca de nosotros</h3>
+            <p id="acerca" style="display: block;">{{refugio.description}}</p>
+            <textarea id="acerca_edit" style="width: 100%;height: 12vh; display: none;">
+            </textarea>
+        </div> 
+    </div>
+</div>
+
+
+<div class="cont_perros">
+    {{{perritos}}}
+</div>  
