@@ -122,9 +122,35 @@
         alternar("notes", "notes_edit", "block");
 
         alternar("btn_editar_perfil", "btn_enviar_perfil", "block");
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("PUT", '/api/edit/perro', true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        var json = {
+            availability_card: get_edit_value("availability-card-edit"),
+            perro_name: get_edit_value("perro_name_edit"),
+            raza: get_edit_value("raza_edit"),
+            size: get_edit_value("size_edit"),
+            weight: get_edit_value("weight_edit"),
+            sex: get_edit_value("sex_edit"),
+            age: get_edit_value("age_edit"),
+            neutered: document.getElementById("neutered_edit").checked,
+            dewormed: document.getElementById("dewormed_edit").checked,
+            dogs: get_edit_value("dogs_edit"),
+            pets: get_edit_value("pets_edit"),
+            kids: get_edit_value("pets_edit"),
+            noise: get_edit_value("kids_edit"),
+            naughty: get_edit_value("naughty_edit"),
+            activity: get_edit_value("activity_edit"),
+            notes: get_edit_value("notes_edit")
+        }
+         
+        xhr.send(JSON.stringify(json));
     }
 
     function get_edit_value(id) {
+        console.log(`getting edit value from ${id}...`)
         return document.getElementById(id).value;
     }
 

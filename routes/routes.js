@@ -305,6 +305,12 @@ router.put('/api/edit/refugio/', (req, res) => {
     }
 })
 
+router.put('/api/edit/perro', (req, res) => {
+    console.log(`recibido: ${JSON.stringify(req.body)}`)
+
+    return res.status(200).send({message: `cuerpo: ${JSON.stringify(req.body)}`})
+})
+
 router.get('/perros', (req, res) => {
     res.render('buscador_perros', {perritos: req.query})
 })
