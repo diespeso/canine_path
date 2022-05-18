@@ -511,7 +511,7 @@ router.get('/perro/:id', (req, res) => {
     con.query('use canine_path;');
     con.query(`select *, perro.name as perro_name,
     perro.id as perro_id, refugio.id as refugio_id,
-    refugio.name as refugio_name
+    refugio.name as refugio_name, refugio.username as refugio_username
     from perro    
 	inner join refugio
     on refugio.id = perro.id_refugio
@@ -552,7 +552,17 @@ router.get('/perro/:id', (req, res) => {
         refugio.address = rows[0].address;
         refugio.city = rows[0].city;
         refugio.country = rows[0].country;
-        res.render('perfil_perro', {perfil: perfil, refugio: refugio})
+
+        refugio.username = rows[0].refugio_username;
+
+        console.log(`refugio del perro: ${refugio.id}, session: ${req.session.user_type}`)
+        if(req.session.user_type == "refugio") {
+            console.log(`TEEEEEEEES, REFUGIO: ${refugio.username}, usuario: ${req.session.username}`)
+            if(refugio.username == req.session.username) { //perro pertenece a refugio en sesion
+                return res.render('perfil_perro_edit', {perfil: perfil, refugio: refugio})
+            }
+        }
+        return res.render('perfil_perro', {perfil: perfil, refugio: refugio})
     }); 
     con.end();
 }) 
