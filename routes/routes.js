@@ -308,6 +308,26 @@ router.put('/api/edit/refugio/', (req, res) => {
 router.put('/api/edit/perro', (req, res) => {
     console.log(`recibido: ${JSON.stringify(req.body)}`)
 
+    var json = req.body;
+
+    var con = mysql.createConnection(config.db_con)
+    con.query('USE canine_path;')
+    var q = `UPDATE perro SET
+        name = '${json.perro_name}',
+        race = '${json.raza}',
+        size = ${json.size},
+        weight = ${json.weight},
+        sex = '${json.sex}',
+        age = ${json.age},
+        neutered = ${json.neutered},
+        dewormed = ${json.dewormed},
+        notes = '${json.notes}',
+        availability = '${json.availability_card}'
+        where perro.id = ${json.id_perro}` //TODO*/
+    con.query(q)
+
+    console.log(`query de perro edit: ${q}`)
+
     return res.status(200).send({message: `cuerpo: ${JSON.stringify(req.body)}`})
 })
 
@@ -565,10 +585,10 @@ router.get('/perro/:id', (req, res) => {
         if(req.session.user_type == "refugio") {
             console.log(`TEEEEEEEES, REFUGIO: ${refugio.username}, usuario: ${req.session.username}`)
             if(refugio.username == req.session.username) { //perro pertenece a refugio en sesion
-                return res.render('perfil_perro_edit', {perfil: perfil, refugio: refugio})
+                return res.render('perfil_perro_edit', {perfil: perfil, refugio: refugio, perro_id: req.params.id})
             }
         }
-        return res.render('perfil_perro', {perfil: perfil, refugio: refugio})
+        return res.render('perfil_perro', {perfil: perfil, refugio: refugio, perro_id: req.params.id})
     }); 
     con.end();
 }) 

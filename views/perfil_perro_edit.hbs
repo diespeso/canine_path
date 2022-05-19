@@ -9,6 +9,9 @@
     const CLR_AVA = "#7febaf";
     const CLR_ADO = "#8abded";
     const CLR_NOD = "#c2c5d1";
+
+    var perro_id = {{perro_id}};
+    console.log(`pagina de perro con id ${perro_id}`);
     switch(status) {
         case 'ADOPTABLE':
             color = CLR_AVA;
@@ -63,14 +66,14 @@
         relevar_valor("age", "age_edit", "text", "value");
 
         alternar("neutered", "neutered_table", "block");
-        if(document.getElementById("neutered").text = "Sí") {
+        if(document.getElementById("neutered").innerText == "Sí") {
             document.getElementById("neutered_edit").checked = true;
         } else {
             document.getElementById("neutered_edit").checked = false;
         }
 
         alternar("dewormed", "dewormed_table", "block");
-                if(document.getElementById("dewormed").text = "Sí") {
+        if(document.getElementById("dewormed").innerText == "Sí") {
             document.getElementById("dewormed_edit").checked = true;
         } else {
             document.getElementById("dewormed_edit").checked = false;
@@ -128,6 +131,7 @@
         xhr.setRequestHeader("Content-Type", "application/json");
 
         var json = {
+            id_perro: perro_id,
             availability_card: get_edit_value("availability-card-edit"),
             perro_name: get_edit_value("perro_name_edit"),
             raza: get_edit_value("raza_edit"),
@@ -246,14 +250,16 @@
                     </tr>
                     <tr>
                         <td>tamaño</td>
-                        <td id="size" style="display: block;">{{perfil.size}}m</td>
+                        <td id="size" style="display: block;">{{perfil.size}}</td>
+                        <td>m</td>
                         <td id="size_table" style="display: none;">
                             <input type="text" id="size_edit">
                         </td>
                     </tr>
                     <tr>
                         <td>peso</td>
-                        <td id="weight" style="display: block">{{perfil.weight}}kg</td>
+                        <td id="weight" style="display: block">{{perfil.weight}}</td>
+                        <td>kg</td>
                         <td id="weight_table" style="display: none;">
                             <input type="text" id="weight_edit">
                         </td> 
