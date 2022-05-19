@@ -324,7 +324,18 @@ router.put('/api/edit/perro', (req, res) => {
         notes = '${json.notes}',
         availability = '${json.availability_card}'
         where perro.id = ${json.id_perro}` //TODO*/
+
+    var q2 = `UPDATE personality SET
+        dogs = '${json.dogs}',
+        pets = '${json.pets}',
+        kids = '${json.kids}',
+        noise = '${json.noise}',
+        naughty = '${json.naughty}',
+        activity = '${json.activity}'
+        where id_perro = ${json.id_perro}
+    `
     con.query(q)
+    con.query(q2)
 
     console.log(`query de perro edit: ${q}`)
 
