@@ -16,6 +16,9 @@ module.exports = router;
 const config = require('../config');
 const { createConnection } = require('net');
 const { format } = require('path');
+const multer = require('multer');
+
+const fs = require('fs')
 
 router.get('/buscador_perros', (req, res) => {
     console.log(req.cookies);
@@ -337,9 +340,59 @@ router.put('/api/edit/perro', (req, res) => {
     con.query(q)
     con.query(q2)
 
+    //console.log(`profile pic: ${json.profile_pic}`)
+    var content = "ok"
+    /*if(json.profile_pic) { //img provided
+        fs.writeFile(`./public/img/dog_profiles/${json.id_perro}.jpg`, json.profile_pic, err => {
+            if(err) console.log(`error cargando imagen: ${err}`)
+            console.log('TODO BIEN')
+        })
+    }*/
+
+
     console.log(`query de perro edit: ${q}`)
 
     return res.status(200).send({message: `cuerpo: ${JSON.stringify(req.body)}`})
+})
+
+var storage_refugios = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './public/img/refugio_profiles/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${req.session.username}${path.extname(file.originalname)}`, path.extname(file.originalname))
+    }
+})
+
+var storage_perros = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './public/img/dog_profiles/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${req.params.perro_id}${path.extname(file.originalname)}`, path.extname(file.originalname))
+    }
+})
+
+//var upload = multer({storage: storage})
+
+router.put('/api/perro/edit/upload_pic/:perro_id', multer({storage: storage_perros}).single("pfp_upload"), (req, res) => {
+    return res.status(200).send({message: `image uploaded for ${req.params.perro_id} dog`})
+    
+    /*var id = req.params.id_perro;
+    console.log(`uploading pic for ${id}...`)
+
+    console.log(`${req.body}, ${JSON.stringify(req.body)}`)
+
+    res.status(200).send({message: "ok"})*/
+})
+
+router.put('/api/upload/pfp/refugio/', multer({storage: storage_refugios}).single("pfp_upload"),
+ (req, res) => {
+    if(!req.session.username) return res.redirect('/');
+    if(req.session.user_type != "refugio") return res.redirect('/')
+
+    return res.status(200).send({message: `image uploaded for ${req.session.user_type}.${req.session.username}`})
+
 })
 
 router.get('/perros', (req, res) => {

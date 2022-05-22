@@ -100,6 +100,8 @@
         alternar("notes", "notes_edit", "block");
         relevar_valor("notes", "notes_edit", "text", "text");
 
+        document.getElementById("pfp_upload").style.display = "block";
+
         alternar("btn_editar_perfil", "btn_enviar_perfil", "block");
     }
 
@@ -124,12 +126,13 @@
 
         alternar("notes", "notes_edit", "block");
 
+        document.getElementById("pfp_upload").style.display = "none";
+
         alternar("btn_editar_perfil", "btn_enviar_perfil", "block");
 
         var xhr = new XMLHttpRequest();
         xhr.open("PUT", '/api/edit/perro', true);
         xhr.setRequestHeader("Content-Type", "application/json");
-
         var json = {
             id_perro: perro_id,
             availability_card: get_edit_value("availability-card-edit"),
@@ -148,9 +151,24 @@
             naughty: get_edit_value("naughty_edit"),
             activity: get_edit_value("activity_edit"),
             notes: get_edit_value("notes_edit")
-        }
-         
+        } 
         xhr.send(JSON.stringify(json));
+        
+        var pic;
+        if(document.getElementById("pfp_upload").files.length == 0) {
+            
+        } else {
+            console.log("upload request...")
+            pic = document.getElementById("pfp_upload").files[0];
+            var fd = new FormData();
+            fd.append("pfp_upload", pic)
+            var upreq = new XMLHttpRequest();
+            upreq.open("PUT", `/api/perro/edit/upload_pic/${perro_id}`);
+            upreq.send(fd);
+        }
+
+
+        location.reload();
     }
 
     function get_edit_value(id) {
@@ -217,7 +235,10 @@
     <!-- first col-->
     <div class="cont_status">
         <div class="cont_foto">
-            <img id="foto" src="/img/dog_profiles/{{perfil.perro_id}}.jpg">
+            <img id="foto" src="/img/dog_profiles/{{perfil.perro_id}}.png">
+            <div>
+                <input type="file" id="pfp_upload" name="pfp_upload" style="display: none;">
+            </div>
         </div>
         <div class="cont_status_adopcion">
             <h2 id="availability-card" style="display: block;">{{perfil.availability}}</h2>
@@ -389,7 +410,7 @@
     <!-- third col--> <!-- por ahora las img de los logos deben ser jpg -->
     <div class="cont_refugio">
         <div class="pest_refugio">
-            <img id="refugio_logo" class="refugio_logo" src="/img/refugio_profiles/{{refugio.id}}.jpg">
+            <img id="refugio_logo" class="refugio_logo" src="/img/refugio_profiles/{{refugio.username}}.png">
             <h2 id="nombre_refugio">{{refugio.name}}</h2>
             <p>{{refugio.address}}</p>
             <p>{{refugio.city}}, {{refugio.country}}</p>
