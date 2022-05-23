@@ -32,10 +32,10 @@ router.get('/buscador_perros', (req, res) => {
         var result = "";
         for(var i = 0; i < perros.length; i++) {
             result += `<a href="perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
             <h1>${perros[i].name}</h1>
         </div></a>`;
-        }
+        } //TODO: CAMBIAR TODO A PNG O JPG DUH
         for(var i = 0; i < razas.length; i++) {
             forma_razas += `<option value="${razas[i].race}">${razas[i].race}(${razas[i].count})</option>`
         }
@@ -56,6 +56,17 @@ router.get('/', (req, res) => {
         return res.redirect('buscador_perros') //TODO: enviar a un lado u otro dependiendo tipo de user
     }
     return res.render('main', {})
+})
+
+router.get( "/api/ask/logged_in/", (req, res) => {
+    var json = {}
+    if(req.session.username) {
+        json.flag = true;
+        json.user_type = req.session.user_type;
+    } else {
+        json.flag = false;
+    }
+    return res.status(200).send(json)
 })
 
 router.post('/login_refugio', (req, res) => {
@@ -79,12 +90,15 @@ router.post('/login_refugio', (req, res) => {
                 req.session.username = rows[0].ref_username;
                 req.session.user_type = 'refugio'
                 //res.cookie('username', rows[0].ref_username);
-                return res.render('perfil_interno_refugio', {
+                /*return res.render('perfil_interno_refugio', {
                     user:
                         {name: rows[0].ref_username,
-                        contra: rows[0].ref_pass}})
+                        contra: rows[0].ref_pass}})*/
+                return res.redirect('/perfil')
+            } else {
+                return res.status(200).redirect('/?failed_login=true')
             }
-            return res.status(200).send({status: 2, message: "Contrasenia incorrecta"})
+            
         })
     })
     /*bcrypt.genSalt(salt_rounds, (err, salt) => {
@@ -151,7 +165,7 @@ router.post('/signin_refugio', (req, res) => {
 router.get('/logout', (req, res) => {
     console.log(req.session);
     req.session.destroy();
-    res.send("ok, afuera")
+    res.redirect('/')
 })
 
 router.get('/signin_usuario', (req, res) => {
@@ -228,7 +242,10 @@ router.post('/login_usuario', (req, res) => {
             if(result) {
                 req.session.username = rows[0].username
                 req.session.user_type = 'usuario'
+                console.log("TODO BIEN")
                 return res.status(200).redirect('buscador_perros')
+            } else {
+                return res.status(200).redirect('/?failed_login=true')
             }
         })
     })
@@ -261,7 +278,7 @@ router.get('/perfil', (req, res) => {
                 var perritos = "";
                 for(var i = 0; i < perros.length; i++) {
                     perritos += `<a href="../perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-                    <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+                    <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
                     <h1>${perros[i].name}</h1>
                 </div></a>`;
                 }
@@ -274,7 +291,8 @@ router.get('/perfil', (req, res) => {
             })
         })
         //return res.render('perfil_refugio_edit')
-    } else {
+    } else { //perfil de usuario normal
+        return res.render('perfil_usuario')
 
     }
     //return res.send({message: req.session.user_type})
@@ -393,6 +411,27 @@ router.put('/api/upload/pfp/refugio/', multer({storage: storage_refugios}).singl
 
     return res.status(200).send({message: `image uploaded for ${req.session.user_type}.${req.session.username}`})
 
+})
+
+router.get('/add_dog', (req, res) => {
+    if(!req.session.username) return res.redirect('/')
+    var refugio = {};
+    var flag = true;
+    refugio.username = req.session.username
+    //obtener datos del refugio para mostrar en la ventana
+    var con = mysql.createConnection(config.db_con);
+    con.query('use canine_path;')
+    con.query(`select * from refugio where refugio.username = '${refugio.username}'`,
+        (err, rows, fields) => {
+            if(err) console.log(`error en add dog: ${err}`)
+            refugio.id = rows[0].refugio_id;
+            refugio.name = rows[0].refugio_name;
+            refugio.address = rows[0].address;
+            refugio.city = rows[0].city;
+            refugio.country = rows[0].country;
+            flag = false;
+            return res.render('add_perro', {refugio: refugio})
+        })
 })
 
 router.get('/perros', (req, res) => {
@@ -637,7 +676,7 @@ router.get('/perro/:id', (req, res) => {
 
         var refugio = {};
         refugio.id = rows[0].refugio_id;
-        refugio.logo = `/img/refugio_logo/${refugio.id}.jpg`;
+        refugio.logo = `/img/refugio_logo/${refugio.id}.png`; //ya no se usa
         refugio.name = rows[0].refugio_name;
         refugio.address = rows[0].address;
         refugio.city = rows[0].city;
@@ -676,7 +715,7 @@ router.get('/refugio/:id', (req, res) => {
         var perritos = "";
         for(var i = 0; i < perros.length; i++) {
             perritos += `<a href="../perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
             <h1>${perros[i].name}</h1>
         </div></a>`;
         }
