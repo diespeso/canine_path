@@ -393,6 +393,8 @@ var storage_perros = multer.diskStorage({
 
 //var upload = multer({storage: storage})
 
+
+//Upload picture to file system
 router.put('/api/perro/edit/upload_pic/:perro_id', multer({storage: storage_perros}).single("pfp_upload"), (req, res) => {
     return res.status(200).send({message: `image uploaded for ${req.params.perro_id} dog`})
     
@@ -432,6 +434,93 @@ router.get('/add_dog', (req, res) => {
             flag = false;
             return res.render('add_perro', {refugio: refugio})
         })
+})
+
+router.post('/api/add/perro', (req, res) => {
+    var flag = false
+    //checar si esta loggeado
+    if(!req.session.user_type) return res.redirect('/')
+    //checar si es refugio
+    if(req.session.user_type != "refugio") return res.redirect('/')
+
+    var con = mysql.createConnection(config.db_con)
+    con.query('USE canine_path;')
+    //conseguir el id del refugio loggeado
+    var q_id = `SELECT id from refugio where refugio.username = '${req.session.username}'`;
+    con.query(q_id, (err, rows, fields) => {
+        if(err) {
+            console.log(`error getting refugio id: ${err}`)
+            flag = true;
+            return
+        }
+        console.log(`id del refugio: ${rows[0].id}`)
+        var json = req.body
+        console.log(`json: ${JSON.stringify(json)}`)
+
+        var q = `INSERT INTO perro(name, race, size,
+            weight, sex, age,
+            neutered, dewormed, notes, availability,
+            id_refugio)
+        VALUES(
+        '${json.perro_name}', '${json.raza}', ${json.size},
+        ${json.weight}, '${json.sex}', ${json.age},
+        ${json.neutered}, ${json.dewormed}, '${json.notes}','${json.availability_card}',
+        ${rows[0].id}
+        );`
+
+        console.log(`query: ${q}`)
+
+        //guardar en perrros
+        con.query(q, (err, perro, fields) => {
+            if(err) {
+                console.log(`error at inserting new dog: ${err}`)
+                flag = true;
+                return res.status(500)
+            }
+            //guardar personalidad
+            var q_p = `INSERT INTO PERSONALITY(dogs, pets, kids,
+                noise, naughty, activity,
+                id_perro)
+                VALUES('${json.dogs}', '${json.pets}', '${json.kids}',
+                '${json.noise}', '${json.naughty}', '${json.activity}',
+                ${perro.insertId}
+                );`
+            con.query(q_p, (err, personlity, fields) => {
+                if(err) {
+                    console.log(`error at inserting personality: ${err}`)
+                    flag = true;
+                    return res.status(500)
+                }
+                flag = true;
+                return res.status(200).send({new_dog: perro.insertId})
+            })
+            flag = true;
+            console.log("3333")
+            return res.status(200)
+        })
+        console.log("4444")
+        return res.status(200)        
+    })
+
+    console.log("55555")
+    return res.status(200)
+    
+    /*console.log(`recibido para add: ${JSON.stringify(req.body)}`)
+
+    var json = req.body;
+
+    var con = mysql.createConnection(config.db_con)
+    con.query('USE canine_path;')
+    var q = `INSERT INTO perro(name, race, size,
+        weight, sex, age,
+        neutered, dewormed, availability,
+        id_refugio)
+	VALUES(
+	'${json.perro_name}', '${json.raza}', ${json.size},
+    ${json.weight}, '${json.sex}', ${json.age},
+    ${json.neutered}, ${json.dewormed}, '${json.availability_card}',
+    ${req.session.username}
+    );`*/
 })
 
 router.get('/perros', (req, res) => {
@@ -636,6 +725,7 @@ router.post('/perros', (req, res) => {
 
 //perfil individual del perro
 router.get('/perro/:id', (req, res) => {
+    console.log(`REQ: ${req.params.id}`)
     var con = mysql.createConnection(config.db_con);
     con.query('use canine_path;');
     con.query(`select *, perro.name as perro_name,

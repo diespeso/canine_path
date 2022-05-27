@@ -107,7 +107,7 @@
     */
 
     function enviar_perfil() {
-        alternar("availability-card", "availability-card-edit", "block");
+        /*alternar("availability-card", "availability-card-edit", "block");
         alternar("perro_name", "perro_name_edit", "block");
         alternar("raza", "raza_table", "block");
         alternar("size", "size_table", "block");
@@ -125,17 +125,23 @@
         alternar("naughty", "naughty_table", "block");
         alternar("activity", "activity_table", "block");
 
-        alternar("notes", "notes_edit", "block");
+        alternar("notes", "notes_edit", "block");*/
 
-        document.getElementById("pfp_upload").style.display = "none";
+        //document.getElementById("pfp_upload").style.display = "none";
 
-        alternar("btn_editar_perfil", "btn_enviar_perfil", "block");
+        //alternar("btn_editar_perfil", "btn_enviar_perfil", "block");
 
         var xhr = new XMLHttpRequest();
-        xhr.open("PUT", '/api/edit/perro', true);
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState == XMLHttpRequest.DONE) {
+                console.log(JSON.parse(xhr.responseText).new_dog)
+                window.location.href = `/perro/${JSON.parse(xhr.responseText).new_dog}`
+            }
+        }
+        xhr.open("POST", '/api/add/perro', true);
         xhr.setRequestHeader("Content-Type", "application/json");
         var json = {
-            id_perro: perro_id,
+            //id_perro: perro_id,
             availability_card: get_edit_value("availability-card-edit"),
             perro_name: get_edit_value("perro_name_edit"),
             raza: get_edit_value("raza_edit"),
@@ -152,7 +158,9 @@
             naughty: get_edit_value("naughty_edit"),
             activity: get_edit_value("activity_edit"),
             notes: get_edit_value("notes_edit")
-        } 
+        }
+
+
         xhr.send(JSON.stringify(json));
         
         var pic;
@@ -165,11 +173,14 @@
             fd.append("pfp_upload", pic)
             var upreq = new XMLHttpRequest();
             upreq.open("PUT", `/api/perro/edit/upload_pic/${perro_id}`);
+
             upreq.send(fd);
+
+
         }
 
 
-        location.reload();
+        //location.reload();
     }
 
     function get_edit_value(id) {
