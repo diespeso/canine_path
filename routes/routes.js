@@ -277,10 +277,14 @@ router.get('/perfil', (req, res) => {
 
                 var perritos = "";
                 for(var i = 0; i < perros.length; i++) {
-                    perritos += `<a href="../perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-                    <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
-                    <h1>${perros[i].name}</h1>
-                </div></a>`;
+                    perritos += `
+                    <a href="../perro/${perros[i].id}" class="dog_container_clicker">
+                    <button class="btn-eliminar" onclick="eliminar_perro(${perros[i].id});event.preventDefault();">X</button>
+                        <div class="dog_container">
+                        <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
+                        <h1>${perros[i].name}</h1>
+                        </div>
+                    </a>`;
                 }
                 console.log(`resumen: ${JSON.stringify(results[0])}`)
                 return res.render('perfil_refugio_edit', {
@@ -391,7 +395,15 @@ var storage_perros = multer.diskStorage({
     }
 })
 
-//var upload = multer({storage: storage})
+router.post(`/api/delete/dog/:id`, (req, res) => {
+    var con = mysql.createConnection(config.db_con)
+    con.query('USE canine_path;')
+    var q = `DELETE FROM perro WHERE id = ${req.params.id}`
+    con.query(q, (err, result) => {
+        if(err) return res.status(500).send(`failed to delete dog ${req.params.id}`)
+    })
+    return res.status(200).message(`perro ${req.params.id} deleted`)
+})
 
 
 //Upload picture to file system

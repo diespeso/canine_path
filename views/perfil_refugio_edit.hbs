@@ -136,6 +136,20 @@
         }
     }
 
+    function eliminar_perro(id) {
+        console.log(`requesting elimination of dog ${id}...`)
+
+        var del_req = new XMLHttpRequest();
+        del_req.onreadystatechange = function() {
+            if(del_req.readyState == XMLHttpRequest.DONE) {
+                window.location.reload()
+            }
+        }
+        del_req.open("POST", `/api/delete/dog/${id}`);
+        del_req.setRequestHeader('Content-Type', 'application/json');
+        del_req.send(null);
+    }
+
 </script>
 <div class="cont_banner">
     <div class="perfil_info_banner">

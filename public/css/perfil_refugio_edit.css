@@ -126,6 +126,18 @@
     
 }
 
+.btn-eliminar {
+    position: relative;
+    top: 5%;
+    left: 5%;
+    padding-left: 8px;
+    padding-right: 8px;
+    border: 0px solid black;
+    border-radius: 100%;
+    background-color: red;
+    color: white;
+}
+
 .btn_edit_profile {
     background-color: #616161;
     position: relative;
