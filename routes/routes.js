@@ -154,7 +154,7 @@ router.post('/signin_refugio', (req, res) => {
                 }
             })
 
-            res.send({message: 'ok'})
+            res.redirect('/perfil')
                     
         })
     })
@@ -595,6 +595,7 @@ function gen_dog_card(dog_id) {
     var res = "";
     con.query(`SELECT * FROM perro WHERE id = ${dog_id};`, function(err, rows, fields) {
         if(err) throw err;
+        if(!rows[0]) return ""
         var obj = rows[0];
         //console.log(obj);
         return `<a href="perro/${obj.id}" class="dog_container_clicker"><div class="dog_container">
@@ -624,7 +625,10 @@ function gen_dog_card(dog_id) {
 
 router.post('/perros', (req, res) => {
     console.log(req.body);
-    var query = "select * from perro inner join personality on perro.id = personality.id_perro ";
+    var query = `select perro.id, perro.name, perro.race, perro.size, perro.weight,
+    perro.sex, perro.age, perro.neutered, perro.dewormed, perro.notes, perro.availability, perro.id_refugio,
+    personality.id as personality_id, personality.dogs, personality.pets, personality.kids, personality.noise,
+    personality.naughty, personality.activity, personality.id_perro from perro inner join personality on perro.id = personality.id_perro`;
     var forma = req.body;
     var count = 0;
     if(forma.f_sexo != 'na') {
@@ -695,6 +699,7 @@ router.post('/perros', (req, res) => {
         if(err) throw err;
         var perros = rows[0];
         var razas = rows[1];
+        console.log(`perros: ${JSON.stringify(rows[0])}`)
         var result = "";
         for(var i = 0; i < perros.length; i++) {
             result += `<a href="perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
@@ -750,6 +755,9 @@ router.get('/perro/:id', (req, res) => {
     on personality.id_perro = perro.id
     where perro.id = ${req.params.id};`, function(err, rows, fields) {
         var perfil = {};
+        if(!rows[0]) {
+            return res.redirect('/')
+        }
         perfil.perro_id = rows[0].perro_id;
         perfil.availability = rows[0].availability;
         perfil.perro_name = rows[0].perro_name;

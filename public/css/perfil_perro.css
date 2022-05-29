@@ -24,6 +24,10 @@
     max-height: 40vh;
 }
 
+textarea {
+    margin-left: 15px;
+}
+
 .cont_adoptar {
     background-color: white;
     color:#6b9ac4;
