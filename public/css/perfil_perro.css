@@ -4,7 +4,7 @@
 }
 
 .cont_status {
-    background-color: orange;
+    background-color: #6b9ac4;
 }
 
 .cont_foto {
@@ -25,7 +25,9 @@
 }
 
 .cont_adoptar {
-    background-color: lightgreen;
+    background-color: white;
+    color:#6b9ac4;
+    font-weight: bold;
     margin-left: 30%;
     margin-right: 30%;
     text-align: center;
@@ -39,7 +41,11 @@
 }
 
 .cont_nombre {
-    background-color: orange;
+    background-color: #6b9ac4;
+    padding:  5px;
+    padding-left: 10px;
+    color: white;
+    border-radius: 5px;
     margin: 5%;
 }
 
@@ -53,17 +59,30 @@
 }
 
 .cont_cards_datos {
-    background-color: grey;
+    background-color: #6b9ac4;
+    border-radius: 5px;
     display: grid;
     margin: 3%;
+    margin-top: -2%;
     grid-template-columns: 1fr 1fr;
 }
 
 .cont_card {
     background-color: whitesmoke;
     margin: 3%;
-    border-radius: 2%;
+    border-radius: 5px;
     height: 20vh;
+    box-shadow: 1px 1px 10px 1px rgba(0, 0, 0, 0.2);
+}
+
+.cont_card td {
+    padding-left: 20px;
+}
+
+h3 {
+    background-color: lightgreen;
+    font-size: 1.5em;
+    padding-left: 2%;
 }
 
 #card_general {
@@ -84,16 +103,18 @@
 
 
 .cont_refugio {
-    background-color: aquamarine;
+    background-color: aliceblue;
 }
 
 .pest_refugio {
-    background-color: lightgoldenrodyellow;
+    margin-top: 5%;
+    background-color: #eef1bd;
     margin-left: 5%;
     text-align: center;
     border-radius: 5% 0% 0% 5%;
-    box-shadow: 2px -5px 5px 3px rgba(0, 0, 0, 0.2);
+    box-shadow: -3px 2px 10px 3px rgba(0, 0, 0, 0.2);
     padding-bottom: 10%;
+    height: 92%;
 }
 
 .pest_refugio img { /*logo del refugio */
@@ -104,7 +125,9 @@
 }
 
 .btn_visitar_refugio {
-    background-color: bisque;
+    background-color: white;
+    font-weight: bold;
+    color: #bbd686;
     margin-left: 35%;
     margin-right: 35%;
     border-radius: 5px;

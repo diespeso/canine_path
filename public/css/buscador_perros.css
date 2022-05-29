@@ -99,6 +99,7 @@ select {
 .dog_container h1 {
     text-align: center;
     background-color: white;
+    color: lightblue;
 }
 
 .dog_pic { /*same as dog_container img, dont edit*/
