@@ -698,7 +698,7 @@ router.post('/perros', (req, res) => {
         var result = "";
         for(var i = 0; i < perros.length; i++) {
             result += `<a href="perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
             <h1>${perros[i].name}</h1>
         </div></a>`;
         }
