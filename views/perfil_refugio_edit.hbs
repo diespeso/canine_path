@@ -37,6 +37,8 @@
         alternar("acerca", "acerca_edit", "block");
         relevar_valor("acerca", "acerca_edit", "text", "text");
 
+        document.getElementById("pfp_upload").style.display = "block";
+
         alternar("btn_edit_profile", "btn_save_profile", "inline-block");
     }
 
@@ -49,6 +51,8 @@
         alternar("acerca", "acerca_edit", "block");
     
         alternar("btn_edit_profile", "btn_save_profile", "inline-block");
+
+        document.getElementById("pfp_upload").style.display = "none";
 
         //enviar informacion a servidor
         var xhr = new XMLHttpRequest();
@@ -64,8 +68,15 @@
             acerca: get_edit_value("acerca_edit")
         };
 
+        var formData = new FormData();
+        formData.append("pfp_upload", document.getElementById("pfp_upload").files[0]);
+        var req = new XMLHttpRequest();
+        req.open("PUT", '/api/upload/pfp/refugio/');
+        req.send(formData)
+
         xhr.send(JSON.stringify(json));
 
+        location.reload();
     }
 
     function get_edit_value(id) {
@@ -125,11 +136,26 @@
         }
     }
 
+    function eliminar_perro(id) {
+        console.log(`requesting elimination of dog ${id}...`)
+
+        var del_req = new XMLHttpRequest();
+        del_req.onreadystatechange = function() {
+            if(del_req.readyState == XMLHttpRequest.DONE) {
+                window.location.reload()
+            }
+        }
+        del_req.open("POST", `/api/delete/dog/${id}`);
+        del_req.setRequestHeader('Content-Type', 'application/json');
+        del_req.send(null);
+    }
+
 </script>
 <div class="cont_banner">
     <div class="perfil_info_banner">
         <div class="cont_logo">
-            <img id="logo" src="/img/refugio_profiles/{{refugio.id}}.jpg">
+            <img id="logo" src="/img/refugio_profiles/{{refugio.username}}.png">
+            <input type="file" id="pfp_upload" name="pfp_upload" style="display: none;">
             <div class="btn_edit_profile" style="display: inline-block;">
                 <button id="btn_edit_profile" onclick="editar_perfil();" style="display: inline-block;">editar perfil</button>
                 <button id="btn_save_profile" onclick="enviar_perfil();" style="display: none;">guardar perfil</button>

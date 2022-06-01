@@ -4,9 +4,33 @@
         <title>Perros</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
+    <script>
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/api/ask/logged_in/");
+        xhr.onload = function() {
+            var json_response = JSON.parse(xhr.responseText);
+            console.log(JSON.stringify(json_response))
+            if(json_response.flag) {
+                document.getElementById("list_perfil").style.display = "block";
+                document.getElementById("list_log_out").style.display = "block";
+            } else {
+                document.getElementById("list_perfil").style.display = "none";
+                document.getElementById("list_log_out").style.display = "none";
+                document.getElementById("list_add_dog").style.display = "none";
+            }
+
+            if(json_response.user_type == "refugio") {
+                document.getElementById("list_add_dog").style.display = "block";
+            } else {
+                document.getElementById("list_add_dog").style.display = "none";
+            }
+        }
+        xhr.send();
+    </script>
+
     <style>
         #_navbar {
-            background-color: lightcoral;
+            background-color:#BBD686;
         }
         #logo_navbar {
             height: 125px;
@@ -19,17 +43,24 @@
     <body>
         <nav class="navbar navbar-expand-lg navbar-light" id="_navbar">
             <img id="logo_navbar" src="/img/logo_perrros.png">
-            <a class="navbar-brand" href="/">Sitio</a>
+            <a class="navbar-brand" href="/">Canine Path</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 	<ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" href="/buscador_perros">Woof</a>
+                            <a class="nav-link" href="/buscador_perros">Woofear</a>
                         </li>
-                        <li>
+                        <li id="list_perfil" style="display: none;">
                             <a class="nav-link" href="/perfil">Perfil</a>
+                        </li>
+                        <li id="list_add_dog" style="display: none;">
+                            <a class="nav-link" href="/add_dog">Añadir perro</a>
+                        </li>
+
+                        <li id="list_log_out" style="display: none;">
+                            <a class="nav-link" href="/logout">Cerrar sesión</a>
                         </li>
                     </ul>
             </div>

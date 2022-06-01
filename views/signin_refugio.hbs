@@ -1,29 +1,42 @@
+<link rel="stylesheet" href="/css/signin.css">
+
 <div class="contenedor_signin">
-    <form action="/signin_refugio" method="POST">
-        <label>Nombre de usuario para refudio</label>
-        <input type="text" id="username" name="username">
-        <br>
-        <label>Contraseña</label>
-        <input type="password" id="pass" name="pass">
-        <br>
-        <label>Nombre completo del refugio</label>
-        <input type="text" id="nombre" name="nombre">
-        <br>
-        <label>Dirección</label>
-        <input type="text" id="direccion" name="direccion">
-        <br>
-        <label>Ciudad</label>
-        <input type="text" id="ciudad" name="ciudad">
-        <br>
-        <label>País</label>
-        <input type="text" id="pais" name="pais">
-        <br>
-        <label>Teléfono</label>
-        <input type="text" id="telefono" name="telefono">
-        <br>
-        <label>Descripción</label>
-        <input type="text" id="descripcion" name="descripcion">
-        <br>
-        <input type="submit" id="submit" name="submit">
-    </form>
+    <div class="forma-izquierda">
+        <h2 class="title-registro">Registro de Refugio</h2>
+        <form action="/signin_refugio" method="POST">
+            <label>Nombre de usuario del refugio</label>
+            <input type="text" id="username" name="username">
+            <br>
+            <label>Contraseña</label>
+            <input type="password" id="pass" name="pass">
+            <br>
+            <label>Nombre completo del refugio</label>
+            <input type="text" id="nombre" name="nombre">
+            <br>
+            <br>
+            <label>Dirección</label>
+            <input type="text" id="direccion" name="direccion">
+            <br>
+            <label>Ciudad</label>
+            <input type="text" id="ciudad" name="ciudad">
+            <br>
+            <label>País</label>
+            <input type="text" id="pais" name="pais">
+            <br>
+            <label>Teléfono</label>
+            <input type="text" id="telefono" name="telefono">
+            <br>
+            <br>
+            <label id="lbl-descripcion">Descripción</label>
+            <br>
+            <!--<input type="text" id="descripcion" name="descripcion"> -->
+            <textarea id="descripcion" name="descripcion" cols="50" rows="8"></textarea>
+            <br>
+            <input type="submit" id="submit" name="submit" value="Registrarse">
+        </form>
+    </div>
+
+    <div class="container-img-derecha">
+        <img src="img/perros_parque.jpg">
+    </div>
 </div>

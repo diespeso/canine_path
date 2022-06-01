@@ -16,6 +16,9 @@ module.exports = router;
 const config = require('../config');
 const { createConnection } = require('net');
 const { format } = require('path');
+const multer = require('multer');
+
+const fs = require('fs')
 
 router.get('/buscador_perros', (req, res) => {
     console.log(req.cookies);
@@ -29,10 +32,10 @@ router.get('/buscador_perros', (req, res) => {
         var result = "";
         for(var i = 0; i < perros.length; i++) {
             result += `<a href="perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
             <h1>${perros[i].name}</h1>
         </div></a>`;
-        }
+        } //TODO: CAMBIAR TODO A PNG O JPG DUH
         for(var i = 0; i < razas.length; i++) {
             forma_razas += `<option value="${razas[i].race}">${razas[i].race}(${razas[i].count})</option>`
         }
@@ -53,6 +56,17 @@ router.get('/', (req, res) => {
         return res.redirect('buscador_perros') //TODO: enviar a un lado u otro dependiendo tipo de user
     }
     return res.render('main', {})
+})
+
+router.get( "/api/ask/logged_in/", (req, res) => {
+    var json = {}
+    if(req.session.username) {
+        json.flag = true;
+        json.user_type = req.session.user_type;
+    } else {
+        json.flag = false;
+    }
+    return res.status(200).send(json)
 })
 
 router.post('/login_refugio', (req, res) => {
@@ -76,12 +90,15 @@ router.post('/login_refugio', (req, res) => {
                 req.session.username = rows[0].ref_username;
                 req.session.user_type = 'refugio'
                 //res.cookie('username', rows[0].ref_username);
-                return res.render('perfil_interno_refugio', {
+                /*return res.render('perfil_interno_refugio', {
                     user:
                         {name: rows[0].ref_username,
-                        contra: rows[0].ref_pass}})
+                        contra: rows[0].ref_pass}})*/
+                return res.redirect('/perfil')
+            } else {
+                return res.status(200).redirect('/?failed_login=true')
             }
-            return res.status(200).send({status: 2, message: "Contrasenia incorrecta"})
+            
         })
     })
     /*bcrypt.genSalt(salt_rounds, (err, salt) => {
@@ -137,7 +154,7 @@ router.post('/signin_refugio', (req, res) => {
                 }
             })
 
-            res.send({message: 'ok'})
+            res.redirect('/perfil')
                     
         })
     })
@@ -148,7 +165,7 @@ router.post('/signin_refugio', (req, res) => {
 router.get('/logout', (req, res) => {
     console.log(req.session);
     req.session.destroy();
-    res.send("ok, afuera")
+    res.redirect('/')
 })
 
 router.get('/signin_usuario', (req, res) => {
@@ -225,7 +242,10 @@ router.post('/login_usuario', (req, res) => {
             if(result) {
                 req.session.username = rows[0].username
                 req.session.user_type = 'usuario'
+                console.log("TODO BIEN")
                 return res.status(200).redirect('buscador_perros')
+            } else {
+                return res.status(200).redirect('/?failed_login=true')
             }
         })
     })
@@ -257,10 +277,14 @@ router.get('/perfil', (req, res) => {
 
                 var perritos = "";
                 for(var i = 0; i < perros.length; i++) {
-                    perritos += `<a href="../perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-                    <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
-                    <h1>${perros[i].name}</h1>
-                </div></a>`;
+                    perritos += `
+                    <a href="../perro/${perros[i].id}" class="dog_container_clicker">
+                    <button class="btn-eliminar" onclick="eliminar_perro(${perros[i].id});event.preventDefault();">X</button>
+                        <div class="dog_container">
+                        <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
+                        <h1>${perros[i].name}</h1>
+                        </div>
+                    </a>`;
                 }
                 console.log(`resumen: ${JSON.stringify(results[0])}`)
                 return res.render('perfil_refugio_edit', {
@@ -271,7 +295,8 @@ router.get('/perfil', (req, res) => {
             })
         })
         //return res.render('perfil_refugio_edit')
-    } else {
+    } else { //perfil de usuario normal
+        return res.render('perfil_usuario')
 
     }
     //return res.send({message: req.session.user_type})
@@ -303,6 +328,211 @@ router.put('/api/edit/refugio/', (req, res) => {
     } else {
         return res.status(500).send({message: "no session"})
     }
+})
+
+router.put('/api/edit/perro', (req, res) => {
+    console.log(`recibido: ${JSON.stringify(req.body)}`)
+
+    var json = req.body;
+
+    var con = mysql.createConnection(config.db_con)
+    con.query('USE canine_path;')
+    var q = `UPDATE perro SET
+        name = '${json.perro_name}',
+        race = '${json.raza}',
+        size = ${json.size},
+        weight = ${json.weight},
+        sex = '${json.sex}',
+        age = ${json.age},
+        neutered = ${json.neutered},
+        dewormed = ${json.dewormed},
+        notes = '${json.notes}',
+        availability = '${json.availability_card}'
+        where perro.id = ${json.id_perro}` //TODO*/
+
+    var q2 = `UPDATE personality SET
+        dogs = '${json.dogs}',
+        pets = '${json.pets}',
+        kids = '${json.kids}',
+        noise = '${json.noise}',
+        naughty = '${json.naughty}',
+        activity = '${json.activity}'
+        where id_perro = ${json.id_perro}
+    `
+    con.query(q)
+    con.query(q2)
+
+    //console.log(`profile pic: ${json.profile_pic}`)
+    var content = "ok"
+    /*if(json.profile_pic) { //img provided
+        fs.writeFile(`./public/img/dog_profiles/${json.id_perro}.jpg`, json.profile_pic, err => {
+            if(err) console.log(`error cargando imagen: ${err}`)
+            console.log('TODO BIEN')
+        })
+    }*/
+
+
+    console.log(`query de perro edit: ${q}`)
+
+    return res.status(200).send({message: `cuerpo: ${JSON.stringify(req.body)}`})
+})
+
+var storage_refugios = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './public/img/refugio_profiles/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${req.session.username}${path.extname(file.originalname)}`, path.extname(file.originalname))
+    }
+})
+
+var storage_perros = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './public/img/dog_profiles/')
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${req.params.perro_id}${path.extname(file.originalname)}`, path.extname(file.originalname))
+    }
+})
+
+router.post(`/api/delete/dog/:id`, (req, res) => {
+    var con = mysql.createConnection(config.db_con)
+    con.query('USE canine_path;')
+    var q = `DELETE FROM perro WHERE id = ${req.params.id}`
+    con.query(q, (err, result) => {
+        if(err) return res.status(500).send(`failed to delete dog ${req.params.id}`)
+    })
+    return res.status(200).message(`perro ${req.params.id} deleted`)
+})
+
+
+//Upload picture to file system
+router.put('/api/perro/edit/upload_pic/:perro_id', multer({storage: storage_perros}).single("pfp_upload"), (req, res) => {
+    return res.status(200).send({message: `image uploaded for ${req.params.perro_id} dog`})
+    
+    /*var id = req.params.id_perro;
+    console.log(`uploading pic for ${id}...`)
+
+    console.log(`${req.body}, ${JSON.stringify(req.body)}`)
+
+    res.status(200).send({message: "ok"})*/
+})
+
+router.put('/api/upload/pfp/refugio/', multer({storage: storage_refugios}).single("pfp_upload"),
+ (req, res) => {
+    if(!req.session.username) return res.redirect('/');
+    if(req.session.user_type != "refugio") return res.redirect('/')
+
+    return res.status(200).send({message: `image uploaded for ${req.session.user_type}.${req.session.username}`})
+
+})
+
+router.get('/add_dog', (req, res) => {
+    if(!req.session.username) return res.redirect('/')
+    var refugio = {};
+    var flag = true;
+    refugio.username = req.session.username
+    //obtener datos del refugio para mostrar en la ventana
+    var con = mysql.createConnection(config.db_con);
+    con.query('use canine_path;')
+    con.query(`select * from refugio where refugio.username = '${refugio.username}'`,
+        (err, rows, fields) => {
+            if(err) console.log(`error en add dog: ${err}`)
+            refugio.id = rows[0].refugio_id;
+            refugio.name = rows[0].refugio_name;
+            refugio.address = rows[0].address;
+            refugio.city = rows[0].city;
+            refugio.country = rows[0].country;
+            flag = false;
+            return res.render('add_perro', {refugio: refugio})
+        })
+})
+
+router.post('/api/add/perro', (req, res) => {
+    var flag = false
+    //checar si esta loggeado
+    if(!req.session.user_type) return res.redirect('/')
+    //checar si es refugio
+    if(req.session.user_type != "refugio") return res.redirect('/')
+
+    var con = mysql.createConnection(config.db_con)
+    con.query('USE canine_path;')
+    //conseguir el id del refugio loggeado
+    var q_id = `SELECT id from refugio where refugio.username = '${req.session.username}'`;
+    con.query(q_id, (err, rows, fields) => {
+        if(err) {
+            console.log(`error getting refugio id: ${err}`)
+            flag = true;
+            return
+        }
+        console.log(`id del refugio: ${rows[0].id}`)
+        var json = req.body
+        console.log(`json: ${JSON.stringify(json)}`)
+
+        var q = `INSERT INTO perro(name, race, size,
+            weight, sex, age,
+            neutered, dewormed, notes, availability,
+            id_refugio)
+        VALUES(
+        '${json.perro_name}', '${json.raza}', ${json.size},
+        ${json.weight}, '${json.sex}', ${json.age},
+        ${json.neutered}, ${json.dewormed}, '${json.notes}','${json.availability_card}',
+        ${rows[0].id}
+        );`
+
+        console.log(`query: ${q}`)
+
+        //guardar en perrros
+        con.query(q, (err, perro, fields) => {
+            if(err) {
+                console.log(`error at inserting new dog: ${err}`)
+                flag = true;
+                return res.status(500)
+            }
+            //guardar personalidad
+            var q_p = `INSERT INTO PERSONALITY(dogs, pets, kids,
+                noise, naughty, activity,
+                id_perro)
+                VALUES('${json.dogs}', '${json.pets}', '${json.kids}',
+                '${json.noise}', '${json.naughty}', '${json.activity}',
+                ${perro.insertId}
+                );`
+            con.query(q_p, (err, personlity, fields) => {
+                if(err) {
+                    console.log(`error at inserting personality: ${err}`)
+                    flag = true;
+                    return res.status(500)
+                }
+                flag = true;
+                return res.status(200).send({new_dog: perro.insertId})
+            })
+            flag = true;
+            console.log("3333")
+            return res.status(200)
+        })
+        console.log("4444")
+        return res.status(200)        
+    })
+
+    console.log("55555")
+    return res.status(200)
+    
+    /*console.log(`recibido para add: ${JSON.stringify(req.body)}`)
+
+    var json = req.body;
+
+    var con = mysql.createConnection(config.db_con)
+    con.query('USE canine_path;')
+    var q = `INSERT INTO perro(name, race, size,
+        weight, sex, age,
+        neutered, dewormed, availability,
+        id_refugio)
+	VALUES(
+	'${json.perro_name}', '${json.raza}', ${json.size},
+    ${json.weight}, '${json.sex}', ${json.age},
+    ${json.neutered}, ${json.dewormed}, '${json.availability_card}',
+    ${req.session.username}
+    );`*/
 })
 
 router.get('/perros', (req, res) => {
@@ -365,6 +595,7 @@ function gen_dog_card(dog_id) {
     var res = "";
     con.query(`SELECT * FROM perro WHERE id = ${dog_id};`, function(err, rows, fields) {
         if(err) throw err;
+        if(!rows[0]) return ""
         var obj = rows[0];
         //console.log(obj);
         return `<a href="perro/${obj.id}" class="dog_container_clicker"><div class="dog_container">
@@ -394,7 +625,10 @@ function gen_dog_card(dog_id) {
 
 router.post('/perros', (req, res) => {
     console.log(req.body);
-    var query = "select * from perro inner join personality on perro.id = personality.id_perro ";
+    var query = `select perro.id, perro.name, perro.race, perro.size, perro.weight,
+    perro.sex, perro.age, perro.neutered, perro.dewormed, perro.notes, perro.availability, perro.id_refugio,
+    personality.id as personality_id, personality.dogs, personality.pets, personality.kids, personality.noise,
+    personality.naughty, personality.activity, personality.id_perro from perro inner join personality on perro.id = personality.id_perro`;
     var forma = req.body;
     var count = 0;
     if(forma.f_sexo != 'na') {
@@ -465,10 +699,11 @@ router.post('/perros', (req, res) => {
         if(err) throw err;
         var perros = rows[0];
         var razas = rows[1];
+        console.log(`perros: ${JSON.stringify(rows[0])}`)
         var result = "";
         for(var i = 0; i < perros.length; i++) {
             result += `<a href="perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
             <h1>${perros[i].name}</h1>
         </div></a>`;
         }
@@ -507,11 +742,12 @@ router.post('/perros', (req, res) => {
 
 //perfil individual del perro
 router.get('/perro/:id', (req, res) => {
+    console.log(`REQ: ${req.params.id}`)
     var con = mysql.createConnection(config.db_con);
     con.query('use canine_path;');
     con.query(`select *, perro.name as perro_name,
     perro.id as perro_id, refugio.id as refugio_id,
-    refugio.name as refugio_name
+    refugio.name as refugio_name, refugio.username as refugio_username
     from perro    
 	inner join refugio
     on refugio.id = perro.id_refugio
@@ -519,6 +755,9 @@ router.get('/perro/:id', (req, res) => {
     on personality.id_perro = perro.id
     where perro.id = ${req.params.id};`, function(err, rows, fields) {
         var perfil = {};
+        if(!rows[0]) {
+            return res.redirect('/')
+        }
         perfil.perro_id = rows[0].perro_id;
         perfil.availability = rows[0].availability;
         perfil.perro_name = rows[0].perro_name;
@@ -547,12 +786,22 @@ router.get('/perro/:id', (req, res) => {
 
         var refugio = {};
         refugio.id = rows[0].refugio_id;
-        refugio.logo = `/img/refugio_logo/${refugio.id}.jpg`;
+        refugio.logo = `/img/refugio_logo/${refugio.id}.png`; //ya no se usa
         refugio.name = rows[0].refugio_name;
         refugio.address = rows[0].address;
         refugio.city = rows[0].city;
         refugio.country = rows[0].country;
-        res.render('perfil_perro', {perfil: perfil, refugio: refugio})
+
+        refugio.username = rows[0].refugio_username;
+
+        console.log(`refugio del perro: ${refugio.id}, session: ${req.session.user_type}`)
+        if(req.session.user_type == "refugio") {
+            console.log(`TEEEEEEEES, REFUGIO: ${refugio.username}, usuario: ${req.session.username}`)
+            if(refugio.username == req.session.username) { //perro pertenece a refugio en sesion
+                return res.render('perfil_perro_edit', {perfil: perfil, refugio: refugio, perro_id: req.params.id})
+            }
+        }
+        return res.render('perfil_perro', {perfil: perfil, refugio: refugio, perro_id: req.params.id})
     }); 
     con.end();
 }) 
@@ -576,7 +825,7 @@ router.get('/refugio/:id', (req, res) => {
         var perritos = "";
         for(var i = 0; i < perros.length; i++) {
             perritos += `<a href="../perro/${perros[i].id}" class="dog_container_clicker"><div class="dog_container">
-            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.jpg">
+            <img class="dog_pic" src="/img/dog_profiles/${perros[i].id}.png">
             <h1>${perros[i].name}</h1>
         </div></a>`;
         }

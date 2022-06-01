@@ -12,8 +12,15 @@ const app = express()
 
 var mysql = require('mysql');
 
+var bodyParser = require('body-parser')
+
+const multer = require('multer')
+
 const maxAge = 1000 * 60 * 60 * 24;
 
+//para subir imagenes
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 app.use(express.urlencoded({extended: true}))
 app.use(express.json())
 app.use(sessions({

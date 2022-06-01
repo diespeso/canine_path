@@ -1,3 +1,73 @@
-.contenedor_sigin {
-    background-color: aquamarine;
+.contenedor_signin {
+    display: grid;
+    margin: 5%;
+    position: relative;
+    left: 10%;
+    grid-template-columns: 1fr 1fr;
+    height: 20vh;
+}
+
+
+body {
+    background-color: #faebd7;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.forma-izquierda {
+    background-color: #6b9ac4;
+    padding: 5%;
+    text-align: right;
+    padding-right: 50%;
+    padding-left: 0;
+    height: 100vh;
+    box-shadow: 2px 2px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.forma-izquierda img {
+    height: 20vh;
+}
+
+
+.container-img-derecha {
+    margin-left: -40%;
+    margin-top: 2vh;
+}
+
+input {
+    margin-top: 1%;
+}
+
+.title-registro {
+    color: #6b9ac4;
+    background-color: whitesmoke;
+    padding-top: 10%;
+    margin-top: -10%;
+    padding-bottom: 2%;
+    margin-bottom: 10px;
+}
+
+.contenedor_signin {
+    color: white;
+}
+
+#submit {
+    padding: 10px;
+    padding-left: 34px;
+    padding-right: 34px;
+    background-color: whitesmoke;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.2);
+    position: relative;
+    left: -30%;
+}
+
+#submit:hover {
+    transform: scale(1.02);
+    box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.4);
+}
+
+#lbl-descripcion {
+    margin-right: 70%;
+    margin-bottom: 0.7vh;
 }

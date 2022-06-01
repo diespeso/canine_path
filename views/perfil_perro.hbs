@@ -23,6 +23,20 @@
             color = "black";
     }
 
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", "/api/ask/logged_in/");
+    xhr.onload = function() {
+        var json_response = JSON.parse(xhr.responseText);
+        console.log(JSON.stringify(json_response))
+        if(json_response.user_type == "refugio") {
+            console.log("hifing")
+            document.getElementById("btn_adoptar").style.display = "none";
+        } else {
+            document.getElementById("btn_adoptar").style.display = "block";
+        }
+    }
+    xhr.send();
+
     window.onload = function() {
         //set availability tag color
         document.getElementById("availability-card").style.backgroundColor = color;
@@ -45,13 +59,13 @@
     <!-- first col-->
     <div class="cont_status">
         <div class="cont_foto">
-            <img id="foto" src="/img/dog_profiles/{{perfil.perro_id}}.jpg">
+            <img id="foto" src="/img/dog_profiles/{{perfil.perro_id}}.png">
         </div>
         <div class="cont_status_adopcion">
             <h2 id="availability-card">{{perfil.availability}}</h2>
         </div>
         <a class="link_adoptar" href="#">
-            <div class="cont_adoptar">Adoptar</div>
+            <div id="btn_adoptar" class="cont_adoptar">Adoptar</div>
         </a>
     </div>
     <!-- second col-->
@@ -61,7 +75,7 @@
         </div>
         <div class="cont_cards_datos">
             <div id="card_general" class="cont_card"> 
-                general
+                <h3>General</h3>
                 <table>
                     <tr>
                         <td>raza</td>
@@ -86,7 +100,7 @@
                 </table>
             </div>
             <div id="card_salud" class="cont_card">
-                salud
+                <h3>Salud</h3>
                 <table>
                     <tr>
                         <td>Esterilizado</td>
@@ -99,7 +113,7 @@
                 </table>
             </div>
             <div id="personalidad" class="cont_card">
-                personalidad <!-- maybe use icons for this enum -->
+               <h3>Personalidad</h3><!-- maybe use icons for this enum -->
                 <table>
                     <tr>
                         <td>Otros perros</td>
@@ -128,7 +142,7 @@
                 </table>
             </div>
             <div id="historia" class="cont_card">
-                historia
+                <h3>Historia</h3>
                 <p>{{perfil.notes}}</p>
             </div>
         </div>
@@ -136,7 +150,7 @@
     <!-- third col--> <!-- por ahora las img de los logos deben ser jpg -->
     <div class="cont_refugio">
         <div class="pest_refugio">
-            <img id="refugio_logo" class="refugio_logo" src="/img/refugio_profiles/{{refugio.id}}.jpg">
+            <img id="refugio_logo" class="refugio_logo" src="/img/refugio_profiles/{{refugio.username}}.png">
             <h2 id="nombre_refugio">{{refugio.name}}</h2>
             <p>{{refugio.address}}</p>
             <p>{{refugio.city}}, {{refugio.country}}</p>

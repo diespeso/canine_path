@@ -1,0 +1,417 @@
+<link rel="stylesheet" href="/css/perfil_perro.css" >
+
+<script>
+    //selecting the color for the availability banner
+    document.title = "Perro Nuevo";
+    var status = "NO DISPONIBLE";
+    var color = "#555555";
+
+    const CLR_AVA = "#7febaf";
+    const CLR_ADO = "#8abded";
+    const CLR_NOD = "#c2c5d1";
+
+    //var perro_id = {{perro_id}};
+    //console.log(`pagina de perro con id ${perro_id}`);
+    switch(status) {
+        case 'ADOPTABLE':
+            color = CLR_AVA;
+            break;
+        case 'ADOPTADO':
+            color = CLR_ADO;
+            break;
+        case 'NO DISPONIBLE':
+            color = CLR_NOD;
+            break;
+        default:
+            color = "black";
+    }
+
+    window.onload = function() {
+        //set availability tag color
+        document.getElementById("availability-card").style.backgroundColor = color;
+
+        //check if there are valid images for refugio
+        if(document.getElementById("refugio_logo").naturalHeight == 0) {
+            //failed to load
+            document.getElementById("refugio_logo").src = "/img/refugio_profiles/not_found.jpg";
+        }
+
+        //check if there are valid images for dog
+        if(document.getElementById("foto").naturalHeight == 0) {
+            //failed to load
+            document.getElementById("foto").src = "/img/dog_profiles/not_found.jpg";
+        }
+    };
+    /*
+    function editar_perfil() {
+        alternar("availability-card", "availability-card-edit", "block");
+        relevar_valor("availability-card", "availability-card-edit", "text", "value")
+
+        alternar("perro_name", "perro_name_edit", "block");
+        relevar_valor("perro_name", "perro_name_edit", "text", "value");
+
+        alternar("raza", "raza_table", "block");
+        relevar_valor("raza", "raza_edit", "text", "value");
+
+        alternar("size", "size_table", "block");
+        relevar_valor("size", "size_edit", "text", "value");
+
+        alternar("weight", "weight_table", "block");
+        relevar_valor("weight", "weight_edit", "text", "value");
+
+        alternar("sex", "sex_table", "block");
+        relevar_valor("sex", "sex_edit", "text", "value");
+
+        alternar("age", "age_table", "block");
+        relevar_valor("age", "age_edit", "text", "value");
+
+        alternar("neutered", "neutered_table", "block");
+        if(document.getElementById("neutered").innerText == "Sí") {
+            document.getElementById("neutered_edit").checked = true;
+        } else {
+            document.getElementById("neutered_edit").checked = false;
+        }
+
+        alternar("dewormed", "dewormed_table", "block");
+        if(document.getElementById("dewormed").innerText == "Sí") {
+            document.getElementById("dewormed_edit").checked = true;
+        } else {
+            document.getElementById("dewormed_edit").checked = false;
+        }
+
+        alternar("dogs", "dogs_table", "block");
+        relevar_valor("dogs", "dogs_edit", "text", "value");
+
+        alternar("pets", "pets_table", "block");
+        relevar_valor("pets", "pets_edit", "text", "value");
+
+        alternar("kids", "kids_table", "block");
+        relevar_valor("kids", "kids_edit", "text", "value");
+
+        alternar("noise", "noise_table", "block");
+        relevar_valor("noise", "noise_edit", "text", "value");
+
+        alternar("naughty", "naughty_table", "block");
+        relevar_valor("naughty", "naughty_edit", "text", "value");
+
+        alternar("activity", "activity_table", "block");
+        relevar_valor("activity", "activity_edit", "text", "value");
+
+        alternar("notes", "notes_edit", "block");
+        relevar_valor("notes", "notes_edit", "text", "text");
+
+        document.getElementById("pfp_upload").style.display = "block";
+
+        alternar("btn_editar_perfil", "btn_enviar_perfil", "block");
+    }
+    */
+
+    function enviar_perfil() {
+        /*alternar("availability-card", "availability-card-edit", "block");
+        alternar("perro_name", "perro_name_edit", "block");
+        alternar("raza", "raza_table", "block");
+        alternar("size", "size_table", "block");
+        alternar("weight", "weight_table", "block");
+        alternar("sex", "sex_table", "block");
+        alternar("age", "age_table", "block");
+
+        alternar("neutered", "neutered_table", "block"); 
+        alternar("dewormed", "dewormed_table", "block");    
+
+        alternar("dogs", "dogs_table", "block");
+        alternar("pets", "pets_table", "block");
+        alternar("kids", "kids_table", "block");
+        alternar("noise", "noise_table", "block");
+        alternar("naughty", "naughty_table", "block");
+        alternar("activity", "activity_table", "block");
+
+        alternar("notes", "notes_edit", "block");*/
+
+        //document.getElementById("pfp_upload").style.display = "none";
+
+        //alternar("btn_editar_perfil", "btn_enviar_perfil", "block");
+
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState == XMLHttpRequest.DONE) {
+                console.log(JSON.parse(xhr.responseText).new_dog)
+                window.location.href = `/perro/${JSON.parse(xhr.responseText).new_dog}`
+            }
+        }
+        xhr.open("POST", '/api/add/perro', true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        var json = {
+            //id_perro: perro_id,
+            availability_card: get_edit_value("availability-card-edit"),
+            perro_name: get_edit_value("perro_name_edit"),
+            raza: get_edit_value("raza_edit"),
+            size: get_edit_value("size_edit"),
+            weight: get_edit_value("weight_edit"),
+            sex: get_edit_value("sex_edit"),
+            age: get_edit_value("age_edit"),
+            neutered: document.getElementById("neutered_edit").checked,
+            dewormed: document.getElementById("dewormed_edit").checked,
+            dogs: get_edit_value("dogs_edit"),
+            pets: get_edit_value("pets_edit"),
+            kids: get_edit_value("kids_edit"),
+            noise: get_edit_value("noise_edit"),
+            naughty: get_edit_value("naughty_edit"),
+            activity: get_edit_value("activity_edit"),
+            notes: get_edit_value("notes_edit")
+        }
+
+
+        xhr.send(JSON.stringify(json));
+        
+        var pic;
+        if(document.getElementById("pfp_upload").files.length == 0) {
+            
+        } else {
+            console.log("upload request...")
+            pic = document.getElementById("pfp_upload").files[0];
+            var fd = new FormData();
+            fd.append("pfp_upload", pic)
+            var upreq = new XMLHttpRequest();
+            upreq.open("PUT", `/api/perro/edit/upload_pic/${perro_id}`);
+
+            upreq.send(fd);
+
+
+        }
+
+
+        //location.reload();
+    }
+
+    function get_edit_value(id) {
+        console.log(`getting edit value from ${id}...`)
+        return document.getElementById(id).value;
+    }
+
+    function relevar_valor(id_a, id_b, type_a, type_b) {
+        var temp;
+
+        //texto a fecha
+        if(type_a == "text" && type_b == "date") {
+            temp = document.getElementById(id_a).innerText;
+            var nums = temp.split('/');
+            console.log(`${nums[2]}/${nums[1] - 1}/${nums[0]}`)
+            var date = new Date(`${nums[2]}/${nums[1]}/${nums[0]}`)
+            console.log(date);
+            document.getElementById(id_b).valueAsDate = date;
+            return
+        }
+        //fecha a texto
+        //TODO
+
+        if(type_a == "value") {
+            temp = document.getElementById(id_a).value;
+        } else if(type_a == "date") {
+            temp = document.getElementById(id_a).valueAsDate;
+        } else { //text
+            temp = document.getElementById(id_a).innerText;
+        }
+
+        if(type_b == "value") {
+            document.getElementById(id_b).value = temp;
+        } else if (type_b == "date") {
+            document.getElementById(id_b).valueAsDate = temp; 
+        } else {
+            document.getElementById(id_b).innerText = temp;
+        }
+
+    }
+
+    function alternar(id1, id2, type) {
+
+        console.log(`valores actuales: ${id1}, ${id2}`)
+        var st1 = document.getElementById(id1).style.display;
+        var st2 = document.getElementById(id2).style.display;
+
+        if(st1 == "none" || st1 == "") {
+            document.getElementById(id1).style.display = type;
+        } else {
+            document.getElementById(id1).style.display = "none";
+        }
+
+        if(st2 == "none" || st2 == "") {
+           document.getElementById(id2).style.display = type;
+        } else {
+           document.getElementById(id2).style.display = "none";
+        }
+    }  
+</script>
+<!--<button id="btn_editar_perfil" onclick="editar_perfil();" style="display: block;">Editar</button>-->
+<button id="btn_enviar_perfil" onclick="enviar_perfil();">Guardar</button>
+<div class="cont_perfil_perro">
+    <!-- first col-->
+    <div class="cont_status">
+        <div class="cont_foto">
+            <img id="foto" src="/img/dog_profiles/not_found.jpg">
+            <div>
+                <input type="file" id="pfp_upload" name="pfp_upload">
+            </div>
+        </div>
+        <div class="cont_status_adopcion">
+            <select id="availability-card-edit">
+                <option value="NO DISPONIBLE">NO DISPONIBLE</option>
+                <option value="ADOPTABLE">ADOPTABLE</option>
+                <option value="ADOPTADO">ADOPTADO</option>
+            </select>
+        </div>
+        <!--<a class="link_adoptar" href="#">
+            <div class="cont_adoptar">Adoptar</div>
+        </a>-->
+    </div>
+    <!-- second col-->
+    <div class="cont_datos">
+        <div class="cont_nombre">
+            <span>Nombre</span>
+            <input type="text" id="perro_name_edit">
+        </div>
+        <div class="cont_cards_datos">
+            <div id="card_general" class="cont_card"> 
+                general
+                <table>
+                    <tr>
+                        <td>raza</td>
+                        <td id="raza_table">
+                            <input type="text" id="raza_edit">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>tamaño</td>
+                        <td id="size_table">
+                            <input type="text" id="size_edit">
+                        </td>
+                        <td>m</td>
+                    </tr>
+                    <tr>
+                        <td>peso</td>
+                        <td id="weight_table">
+                            <input type="text" id="weight_edit">
+                        </td>
+                        <td>kg</td>
+                    </tr>
+                    <tr>
+                        <td>sexo</td>
+                        <td id="sex_table">
+                            <select id="sex_edit"> 
+                                <option value="HEMBRA">HEMBRA</option>
+                                <option value="MACHO">MACHO</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>edad</td>
+                        <td id="age_table">
+                            <input type="text" id="age_edit">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="card_salud" class="cont_card">
+                salud
+                <table>
+                    <tr>
+                        <td>Esterilizado</td>
+                        <td id="neutered_table">
+                            <input type="checkbox" id="neutered_edit" value="true">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Desparasitado</td>
+                        <td id="dewormed_table">
+                            <input type="checkbox" id="dewormed_edit"> 
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="personalidad" class="cont_card">
+                personalidad <!-- maybe use icons for this enum -->
+                <table>
+                    <tr>
+                        <td>Otros perros</td>
+                        <td id="dogs_table">
+                            <select id="dogs_edit">
+                                <option value="BIEN">BIEN</option>
+                                <option value="REGULAR">REGULAR</option>
+                                <option value="MALO">MALO</option>
+                                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Otras mascotas</td>
+                        <td id="pets_table">
+                            <select id="pets_edit">
+                                <option value="BIEN">BIEN</option>
+                                <option value="REGULAR">REGULAR</option>
+                                <option value="MALO">MALO</option>
+                                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Niños</td>
+                        <td id="kids_table">
+                            <select id="kids_edit">
+                                <option value="BIEN">BIEN</option>
+                                <option value="REGULAR">REGULAR</option>
+                                <option value="MALO">MALO</option>
+                                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Ruidoso</td>
+                        <td id="noise_table">
+                            <select id="noise_edit">
+                                <option value="POCO">POCO</option>
+                                <option value="REGULAR">REGULAR</option>
+                                <option value="MUCHO">MUCHO</option>
+                                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Travieso</td>
+                        <td id="naughty_table">
+                            <select id="naughty_edit">
+                                <option value="BIEN">BIEN</option>
+                                <option value="REGULAR">REGULAR</option>
+                                <option value="MALO">MALO</option>
+                                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Actividad</td>
+                        <td id="activity_table">
+                            <select id="activity_edit">
+                                <option value="MUY ACTIVO">MUY ACTIVO</option>
+                                <option value="REGULAR">REGULAR</option>
+                                <option value="PEREZOSO">PEREZOSO</option>
+                                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="historia" class="cont_card">
+                historia
+                <textarea id="notes_edit" style="width: 100%; height: 15vh;"></textarea>
+            </div>
+        </div>
+    </div>
+    <!-- third col--> <!-- por ahora las img de los logos deben ser jpg -->
+    <div class="cont_refugio">
+        <div class="pest_refugio">
+            <img id="refugio_logo" class="refugio_logo" src="/img/refugio_profiles/{{refugio.username}}.png">
+            <h2 id="nombre_refugio">{{refugio.name}}</h2>
+            <p>{{refugio.address}}</p>
+            <p>{{refugio.city}}, {{refugio.country}}</p>
+            <a class="link_visitar_refugio" href="/refugio/{{refugio.id}}"><div class="btn_visitar_refugio">Ver perfil</div></a>
+        </div>
+    </div>
+</div>
