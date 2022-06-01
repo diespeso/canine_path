@@ -80,7 +80,7 @@ router.post('/login_refugio', (req, res) => {
         (err, rows, fields) => {
         if(err) throw err;
         if(rows.length == 0) { //didnt find username
-            return res.status(200).send({status: 1, message: "usuario invalido"}); //TODO: MEJORAR EL MENSAJE DE USUARIO NO ENCONTRADO
+            return res.status(200).redirect('/?failed_login=true') //TODO: MEJORAR EL MENSAJE DE USUARIO NO ENCONTRADO
         }
         console.log(rows);
         //check password
@@ -296,10 +296,14 @@ router.get('/perfil', (req, res) => {
         })
         //return res.render('perfil_refugio_edit')
     } else { //perfil de usuario normal
-        return res.render('perfil_usuario')
+        return res.render('perfil_ok')
 
     }
     //return res.send({message: req.session.user_type})
+})
+
+router.get('/perfil_ok', (req, res) => {
+    return res.render('perfil_ok')
 })
 
 router.put('/api/edit/refugio/', (req, res) => {
@@ -666,6 +670,34 @@ router.post('/perros', (req, res) => {
         count++;
     }
 
+    //////////////////PERSONALIDAD
+    if(forma.f_p_perros != 'na') {
+        if(count > 0) {
+            query += ` and personality.dogs = '${forma.f_p_perros}' `
+        } else {
+            query += ` where personality.dogs = '${forma.f_p_perros}' `
+        }
+        count++;
+    }
+
+    if(forma.f_p_mascotas != 'na') {
+        if(count > 0) {
+            query += ` and personality.pets = '${forma.f_p_mascotas}' `
+        } else {
+            query += ` where personality.pets = '${forma.f_p_mascotas}' `
+        }
+        count++;
+    }
+
+    if(forma.f_p_ninios != 'na') {
+        if(count > 0) {
+            query += ` and personality.kids = '${forma.f_p_ninios}' ` 
+        } else {
+            query += ` where personality.kids = '${forma.f_p_ninios}' `
+        }
+        count++
+    }
+
     if(forma.f_p_actividad != 'na') {
         if(count > 0) {
             query += ` and personality.activity = '${forma.f_p_actividad}' `
@@ -683,6 +715,17 @@ router.post('/perros', (req, res) => {
         }
         count++
     }
+
+    if(forma.f_p_travieso != 'na') {
+        if(count > 0) {
+            query += ` and personality.naughty = '${forma.f_p_travieso}' `
+        } else {
+            query += ` where personality.naughty = '${forma.f_p_travieso}' `
+        }
+        count++
+    }
+
+
 
 
     //TODO: AGREGAR BUSQUEDAS POR ASPECTOS DE PERSONALIDAD

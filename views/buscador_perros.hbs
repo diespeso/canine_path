@@ -23,10 +23,14 @@
         
         set_option('f_sexo', '{{contenido.old.f_sexo}}')
         set_option('f_tamano', '{{contenido.old.f_tamano}}')
-        set_option('f_raza', '{{contenido.old.f_razagit }}')
+        set_option('f_raza', '{{contenido.old.f_raza}}')
 
+        set_option('f_p_perros', '{{contenido.old.f_p_perros}}');
+        set_option('f_p_mascotas', '{{contenido.old.f_p_mascotas}}');
+        set_option('f_p_ninios', '{{contenido.old.f_p_ninios}}');
         set_option('f_p_actividad', '{{contenido.old.f_p_actividad}}');
         set_option('f_p_ruido', '{{contenido.old.f_p_ruido}}');
+        set_option('f_p_travieso', '{{contenido.old.f_p_travieso}}');
     };
 </script>
 
@@ -55,6 +59,33 @@
         <br>
         <label id="lbl_personality">Personalidad</label>
         <div id="div_personality">
+            <label>Perros</label>
+            <select id="f_p_perros" name="f_p_perros">
+                <option value="BIEN">BIEN</option>
+                <option value="REGULAR">REGULAR</option>
+                <option value="MALO">MALO</option>
+                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                <option value="na" selected="selected">No importa</option>
+            </select>
+            <br>
+            <label>Mascotas</label>
+            <select id="f_p_mascotas" name="f_p_mascotas">
+                <option value="BIEN">BIEN</option>
+                <option value="REGULAR">REGULAR</option>
+                <option value="MALO">MALO</option>
+                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                <option value="na" selected="selected">No importa</option>
+            </select>
+            <Br>
+            <label>Niños</label>
+            <select id="f_p_ninios" name="f_p_ninios">
+                <option value="BIEN">BIEN</option>
+                <option value="REGULAR">REGULAR</option>
+                <option value="MALO">MALO</option>
+                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                <option value="na" selected="selected">No importa</option>
+            </select>
+            <br>
             <label>Energía</label>
             <select id="f_p_actividad" name="f_p_actividad">
                 <option value="MUY ACTIVO">Muy activo</option>
@@ -70,7 +101,15 @@
                 <option value="MUCHO">Mucho</option>
                 <option value="DESCONOCIDO">Desconocido</option>
                 <option value="na" selected="selected">No importa</option>
-
+            </select>
+            <br>
+            <label>Travieso</label>
+            <select id="f_p_travieso" name="f_p_travieso">
+                <option value="BIEN">BIEN</option>
+                <option value="REGULAR">REGULAR</option>
+                <option value="MALO">MALO</option>
+                <option value="DESCONOCIDO">DESCONOCIDO</option>
+                <option value="na" selected="selected">No importa</option>
             </select>
         </div>
         <input type="submit" value="Woofear" id="btn-submit">
